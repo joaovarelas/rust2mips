@@ -1,29 +1,86 @@
-1) Primeiro Trabalho Prático de Compiladores
+- Segundo Trabalho Prático de Compiladores -
 
-O primeiro trabalho pode ser em grupo de 2 ou individual e tem que ser enviado por email para o docente da turma prática respectiva (Prof. Mário Florido: amf@dcc.fc.up.pt ou Prof. João Barbosa: joao.barbosa@fc.up.pt) com o Subject: TRABALHO COMPILADORES 1, até ao final do dia 10 de Novembro. A avaliação pressupõe uma apresentação do trabalho que será feita nas aula práticas da semana de 11 a 14 de Novembro.
+O segundo trabalho pode ser em grupo de 2 ou individual e tem que ser enviado por email para o docente da turma prática respectiva (Prof. Mário Florido: amf@dcc.fc.up.pt ou Prof. João Barbosa: joao.barbosa@fc.up.pt) com o Subject: TRABALHO COMPILADORES 1, até ao final do dia 15 de Dezembro. A avaliação pressupõe uma apresentação do trabalho que será feita nas aula práticas da semana de 16 a 19 de Dezembro. O trabalho poderá ser implementado em C ou em Haskell.
 
-Implemente um analisador sintáctico de um subconjunto da linguagem Rust. O subconjunto da linguagem deverá incluir:
 
-- uma única função: fn main() {...}
+O objectivo deste segundo trabalho é implementar um compilador do sub-conjunto de RUST considerado para o primeiro trabalho para MIPS.
 
-- Inteiros e booleanos
+- Tarefa 1:
 
-- Expressões aritméticas
+Defina ficheiros code.h e code.c para implementar uma estrutura (struct Instr) e respectivos construtores de um código intermédio de três endereços definido por:
 
-- Expressões booleanas
+instruction -> VAR := atom | VAR := atom binop atom
 
-- Atribuições (let)
+atom -> VAR
+atom -> NUMBER
 
-- If e If then else
+binop -> PLUS | MINUS | DIV | MULT
 
-- Ciclos While
 
-- Sequências de comandos (separados por ; )
+1.b) Defina uma estrutura para listas de instruções, InstrList (lista de apontadores para structs _Instr), respectivos construtores e funções de acesso getFirst e nextInstrs, e uma função append para concatenação de listas de instruções.
 
-- Funções de input/output (println e read_line)
+1.c) Defina uma função printInstr para imprimir uma instrução.
 
-O parser deverá fazer a análise sintáctica do programa do subconjunto de Rust pedido, e fornecer como output  uma representação da árvore abstracta (union em C / data em Haskell). Deverá para isso, além do parser, implementar uma função para imprimir a árvore sintática abstracta do programa Rust.
+1.d) Defina uma função printListIntrs para imprimir uma lista de instruções.
 
-Informações sobre a linguagem Rust: https://doc.rust-lang.org/book/
 
-Sugestão: use e modifique os programas (flex, bison, ast.c, ast.h) fornecidos nas aulas práticas como uma base para o trabalho.
+- Tarefa 2:
+
+Implemente um compilador da árvore abstracta para expressões (struct _Expr) para uma lista de instruções (lista de struct _Instr).
+
+Uma sugestão de protótipo para a função que compila expressões é:
+
+InstrList compileExp(Expr e, char *r); onde r é o registo onde está o valor da availação da expressão na lista de instruções InstrList. Por exemplo:
+
+O resultado da compilação da expressão: x - 2*5 é a lista de instruções:
+
+t1 := x;
+t2 := 2;
+t3 := 5;
+t4 := t1*t2;
+t5 := t1 - t4;
+
+e neste caso o registo r é igual a t5.
+
+
+- Tarefa 3:
+
+Estenda  o compilador anterior para lidar com as árvores abstractas correspondentes ao output do primeiro trabalho (lista de comandos do subconjunto do RUST).
+Para isso considere o seguinte código intermédio:
+
+instruction -> VAR := atom
+instruction -> VAR := atom binop atom
+instruction -> GOTO label
+instruction -> IF VAR relop atom THEN label ELSE label
+instruction -> LAB label
+
+atom -> VAR
+atom -> NUMBER
+
+label -> LAB_ID
+
+binop -> PLUS | MINUS | DIV | MULT
+relop -> EQUAL | DIF | LESS | GT | LE | GE
+
+3.1) Implemente outra função de compilação de expressões booleanas com protótipo:
+
+InstrList compileBool(ExprBool e; char *labelTrue, char *labelFalse);
+
+onde labelTrue e labelFalse são as labels para onde a execução do programa em código intermédio deverá ir conforme a compilação da expressão booleana seja respectivamente True ou False.
+
+3.2) Implemente uma função de compilação de comandos (que chama as função de compilação de expressões aritméticas e booleanas) que terá protótipo:
+
+InstrList compileCmd(Cmd c);
+
+
+- Tarefa 4:
+
+ Estenda as funções printInstr e printListInstr para imprimirem as novas instruções do código intermédio.
+
+
+- Tarefa 5:
+
+ Implemente uma função printMIPS que imprime num ficheiro o código MIPS correspondente à lista de instruções gerada pelo compilador.
+
+(Referência para a tarefa 5: https://www2.cs.arizona.edu/~debray/Teaching/CSc453/DOCS/3addr2spim.pdf)
+
