@@ -1,0 +1,23 @@
+// Euclids GCD Algorithm
+
+fn main() {
+  let a = 0;
+  let b = 0;
+  let c = 0;
+
+  println!("Please insert value of 'a': ");
+  read_line(a);
+
+  println!("Please insert value of 'b': ");
+  read_line(b);
+
+  while b != 0 {
+    t = b;
+  	b = a % b;
+  	a = t;
+  }
+
+  println!("The result is: ");
+  println!(a);
+  // println!(b);
+}

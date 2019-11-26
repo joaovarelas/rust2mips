@@ -1,0 +1,18 @@
+
+fn main(){
+
+	let x = 0;
+	let y = 0;
+
+	while x < 100 {
+		while y < 100 {
+			y = y + 1;
+		}
+		x = x + 1;
+	}
+
+	// x and y should be = 100
+	println!(x);
+	println!(y);
+}
+

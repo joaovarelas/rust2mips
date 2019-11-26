@@ -1,0 +1,29 @@
+1) Primeiro Trabalho Prático de Compiladores
+
+O primeiro trabalho pode ser em grupo de 2 ou individual e tem que ser enviado por email para o docente da turma prática respectiva (Prof. Mário Florido: amf@dcc.fc.up.pt ou Prof. João Barbosa: joao.barbosa@fc.up.pt) com o Subject: TRABALHO COMPILADORES 1, até ao final do dia 10 de Novembro. A avaliação pressupõe uma apresentação do trabalho que será feita nas aula práticas da semana de 11 a 14 de Novembro.
+
+Implemente um analisador sintáctico de um subconjunto da linguagem Rust. O subconjunto da linguagem deverá incluir:
+
+- uma única função: fn main() {...}
+
+- Inteiros e booleanos
+
+- Expressões aritméticas
+
+- Expressões booleanas
+
+- Atribuições (let)
+
+- If e If then else
+
+- Ciclos While
+
+- Sequências de comandos (separados por ; )
+
+- Funções de input/output (println e read_line)
+
+O parser deverá fazer a análise sintáctica do programa do subconjunto de Rust pedido, e fornecer como output  uma representação da árvore abstracta (union em C / data em Haskell). Deverá para isso, além do parser, implementar uma função para imprimir a árvore sintática abstracta do programa Rust.
+
+Informações sobre a linguagem Rust: https://doc.rust-lang.org/book/
+
+Sugestão: use e modifique os programas (flex, bison, ast.c, ast.h) fornecidos nas aulas práticas como uma base para o trabalho.

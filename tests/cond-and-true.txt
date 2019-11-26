@@ -1,0 +1,7 @@
+fn main() { 
+  let x = 1;
+  let y = 0;
+  if x && y {
+    let z = 1337;
+  }
+}

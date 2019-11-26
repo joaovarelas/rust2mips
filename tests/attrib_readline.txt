@@ -1,0 +1,8 @@
+fn main(){
+
+let x = read_line();
+
+println!("Your input was: "); println!(x);
+
+}
+

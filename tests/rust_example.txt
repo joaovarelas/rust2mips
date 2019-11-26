@@ -1,0 +1,38 @@
+
+fn main() {
+    // -1, 0, 1234
+    // true, false
+    // + - * / %
+    // ! != == && ||
+    // let x = y, let mut
+    // if, if else if, if else
+    // while, do while
+    // cmd_seq1; cmd_seq2
+    // println, read_line
+
+    let x = 1;
+    let y = 2;
+    let mut z = x + y;
+    
+    println!("x + y = z");
+    println!(x); println!(y); println!(z);
+    
+    while z > 0 {
+        println!(z);  
+       
+        if z % 3 == 0 {
+            println!("z is divisible by 3");
+        } else if z % 2 == 0 {
+            println!("z is divisible by 2");
+        } else {
+            println!("z is not divisible by 2 or 3");
+        }
+        
+                
+        z = z - 1;
+        
+    }
+    
+    
+
+}
