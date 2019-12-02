@@ -57,15 +57,17 @@ AST* mk_flow(int type, AST* cond, AST* then_block, AST* else_block){
 
 
 
-/* TODO: polynomial rolling hash */
-unsigned int mk_hash(char *var){
-    unsigned int c = 0, hashval = 0;
+
+unsigned int mk_hash(char* var){
+    unsigned int c = 0,
+	hashval = 0;
     while(c++ < strlen(var)) hashval += var[c];
     hashval += strlen(var);
+    //printf("hash(%s) = %u\n", var, hashval);
     return hashval;
 }
 
-Symbol* search_table(char* var, int len){
+Symbol* search_table(char* var){
     int k = MAX_ENTRIES;
     Symbol* sp = &hash_table[ mk_hash(var) % k];
 

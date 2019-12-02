@@ -5,6 +5,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include "ast.h"
+    #include "code.h"
     
     extern int yylex();
     extern int yyline;
@@ -23,10 +24,10 @@
 %token			number symbol string
 %token			plus minus mult divi mod
 %token			not and or eqt grt geq lrt leq neq
-			
-%token			semic equal lbrace rbrace lpar rpar
-%token			commentline quote
-			
+
+%token			equal commentline quote
+
+%token			'(' ')' '{' '}' ';'
 			
 // Operator associativity & precedence
 %left			lrt grt eqt neq leq geq
@@ -60,47 +61,47 @@
 			
 %%
 
-program: 	main { }
+program: 	main { } ;
 		
-main: 		fn fmain lpar rpar lbrace statements rbrace { root = $6;  } 
+main: 		fn fmain '(' ')' '{' statements '}' { root = $6; } 
 		
 statements:   	statement statements { $$ = mk_ast(CMD, $1, $2); }
 	|	{ $$ = NULL; }
   
 		
-statement:   	assignment | if_statement | while_statement | io_func | comments 
+statement:   	assignment | if_statement | while_statement | io_func | comments ;
 		
 		
 assignment:
-		let symbol equal expr semic { $$ = mk_assign($2, $4); }
-	| 	let mut symbol equal expr semic { $$ = mk_assign($3, $5); }
-	| 	symbol equal expr semic { $$ = mk_assign($1, $3); }
+		let symbol equal expr ';' { $$ = mk_assign($2, $4); }
+	| 	let mut symbol equal expr ';' { $$ = mk_assign($3, $5); }
+	| 	symbol equal expr ';' { $$ = mk_assign($1, $3); }
          
 		
 		
 if_statement:
-		IF expr lbrace statements rbrace { $$ = mk_flow(IFS, $2, $4, NULL); }
-	| 	IF expr lbrace statements rbrace ELSE lbrace statements rbrace { $$ = mk_flow(IFS, $2, $4, $8); }
-	| 	IF expr lbrace statements rbrace ELSE if_statement { $$ = mk_flow(IFS, $2, $4, $7); }
+		IF expr '{' statements '}' { $$ = mk_flow(IFS, $2, $4, NULL); }
+	| 	IF expr '{' statements '}' ELSE '{' statements '}' { $$ = mk_flow(IFS, $2, $4, $8); }
+	| 	IF expr '{' statements '}' ELSE if_statement { $$ = mk_flow(IFS, $2, $4, $7); }
          	
 		
 
 while_statement:
-		WHILE expr lbrace statements rbrace { $$ = mk_flow(WHS, $2, $4, NULL); } 
+		WHILE expr '{' statements '}' { $$ = mk_flow(WHS, $2, $4, NULL); } 
 		
 		
-io_func:  	fprintln | freadln
+io_func:  	fprintln | freadln ;
 	       	
 
 		
 fprintln:
-		println lpar string rpar semic { $$ = mk_func(PTL, NULL, 0, $3); }
-	| 	println lpar symbol rpar semic { $$ = mk_func(PTL, $3, 0, NULL); }
-	| 	println lpar number rpar semic { $$ = mk_func(PTL, NULL, $3, NULL); }
+		println '(' string ')' ';' { $$ = mk_func(PTL, NULL, 0, $3); }
+	| 	println '(' symbol ')' ';' { $$ = mk_func(PTL, $3, 0, NULL); }
+	| 	println '(' number ')' ';' { $$ = mk_func(PTL, NULL, $3, NULL); }
 
 		
-freadln:  	readln lpar symbol rpar semic { $$ = mk_func(RDL, $3, 0, NULL); }
-	|	let symbol equal readln lpar rpar semic { $$ = mk_func(RDL, $2, 0, NULL); }
+freadln:  	readln '(' symbol ')' ';' { $$ = mk_func(RDL, $3, 0, NULL); }
+	|	let symbol equal readln '(' ')' ';' { $$ = mk_func(RDL, $2, 0, NULL); }
 
 
 expr:

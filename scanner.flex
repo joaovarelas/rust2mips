@@ -38,13 +38,12 @@ int yyline = 1;
 ">" { return grt; }
 "<=" { return leq; }
 ">=" { return geq; }
-
-"{" { return lbrace; }
-"}" { return rbrace; }
-"(" { return lpar; }
-")" { return rpar; }
-";" { return semic; }
 "=" { return equal; }
+"{" { return '{'; }
+"}" { return '}'; }
+"(" { return '('; }
+")" { return ')'; }
+";" { return ';'; }
 
 "+" { return plus; }
 "-" { return minus; }
@@ -54,7 +53,7 @@ int yyline = 1;
 
 
 [0-9]+ { yylval.number = atoi(yytext); return number; }
-[a-zA-Z][a-zA-Z0-9]* {  yylval.symbol = search_table(yytext, strlen(yytext)); return symbol; }
+[a-zA-Z][a-zA-Z0-9]* {  yylval.symbol = search_table(yytext); return symbol; }
 \".*\" { yylval.string = strdup(yytext); return string; }
 
 

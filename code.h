@@ -7,21 +7,15 @@ extern void yyerror(const char* msg);
 
 typedef
 enum {
-      ATRIB, PLUS, MINUS, DIV, MULT, LABEL, GOTO, IFE, IFG, IFGE, LFL, IFLE, IFDIF
+      ATRIB, PLUS, MINUS, DIVI, MULTI, LABEL, GOTO, IFE, IFG, IFGE, LFL, IFLE, IFDIF
 } OpKind;
 
 
 typedef
-enum {
-      STR, INT, EMPTY
-} AtomKind;
-
-
-typedef
 struct {
-    AtomKind kind;
+    enum { STR, INT, EMPTY } kind;
     union {
-	int valor;
+	int value;
 	char* name;
     } u;
 } Atom;
@@ -30,5 +24,32 @@ struct {
 typedef
 struct {
     OpKind op;
-    Atom el1, el2, el3, el4;
+    Atom* a1;
+    Atom* a2;
+    Atom* a3;
+    //Atom* a4;
 } Instr;
+
+
+typedef struct _InstrList {
+    Instr* i;
+    struct _InstrList* next;
+} InstrList;
+
+
+Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3/*, Atom* a4*/);
+InstrList* mk_instr_list(Instr* i, InstrList* next);
+InstrList* mk_append(InstrList* l1, InstrList* l2);
+void add_instr(Instr* instr, InstrList* list);
+bool list_is_empty(InstrList* list);
+void print_list(InstrList* list);
+Atom* mk_atom_empty();
+Atom* mk_atom_int(int v);
+Atom* mk_atom_str(char* v);
+
+
+
+#endif
+
+
+

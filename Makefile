@@ -1,6 +1,6 @@
-OBJS=scanner.o parser.o ast.o interpreter.o
+OBJS=scanner.o parser.o ast.o code.o compiler.o
 INTERM=scanner.c parser.c parser.h
-PROGRAM=./interpreter
+PROGRAM=./compiler
 CFLAGS=-g -Wall -Wno-unused-function -Wno-unused-variable
 
 all: $(PROGRAM)
