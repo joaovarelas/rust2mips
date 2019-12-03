@@ -59,33 +59,55 @@ AST* mk_flow(int type, AST* cond, AST* then_block, AST* else_block){
 
 
 unsigned int mk_hash(char* var){
-    unsigned int c = 0,
-	hashval = 0;
-    while(c++ < strlen(var)) hashval += var[c];
-    hashval += strlen(var);
-    //printf("hash(%s) = %u\n", var, hashval);
-    return hashval;
+    unsigned int hash = 0, c=0;
+   
+    while( var[c] ){
+	hash += var[c];
+        hash += (hash << 10);
+        hash ^= (hash >> 6);
+	++c;
+    }
+    hash += (hash << 3);
+    hash ^= (hash >> 11);
+    hash -= (hash << 15);
+
+    hash %= MAX_ENTRIES;
+    //printf("Debug: hash(%s) = %u\n", var, hash);
+    return hash;
 }
 
+
 Symbol* search_table(char* var){
-    int k = MAX_ENTRIES;
-    Symbol* sp = &hash_table[ mk_hash(var) % k];
+    int scount = MAX_ENTRIES;
+    Symbol* sp = &hash_table[ mk_hash(var) ];
+        
+    while(--scount >= 0) {
+	if(sp->name && !strcmp(sp->name, var)) { return sp; }
 
-    while(--k >= 0) {
-	if(sp->name && !strcmp(sp->name, var))
-	    return sp;
-
-	if(!sp->name) {
+	if(!sp->name) {		/* new entry */
 	    sp->name = strdup(var);
 	    sp->val = 0;
 	    return sp;
 	}
-
-	/* new entry */
+	
 	if(++sp >= hash_table + MAX_ENTRIES)
 	    sp = hash_table; /* try the next entry */
     }
-
     yyerror("symbol table overflow\n");
     abort(); /* tried them all, table is full */
+
 }
+
+
+void set_symbol_value(char* var, int value){
+    unsigned int hash = mk_hash(var);
+    Symbol* s = &hash_table[ hash ];
+    s->name = strdup(var);
+    s->val = value;
+    return;
+}
+
+int get_symbol_value(char* var){
+    return (search_table(var))->val;
+}
+

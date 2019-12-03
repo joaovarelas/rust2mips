@@ -11,8 +11,7 @@ int eval(AST* ast, int depth, bool flag){
   
     if(ast == NULL){
 	printf("NULL AST\n");
-	return -1;
-    }
+	return -1;}
 
   
     int result;

@@ -140,7 +140,8 @@ AST* mk_func(int type, Symbol* symbol, int number, char* string);
 Symbol hash_table[MAX_ENTRIES];
 unsigned int mk_hash(char *var);
 Symbol* search_table(char* var);
-
+void set_symbol_value(char* var, int value);
+int get_symbol_value(char* var);
 
 #endif
 

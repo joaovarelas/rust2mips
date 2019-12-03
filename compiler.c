@@ -5,7 +5,7 @@
 InstrList* list;
 
 
-// t0 - t999 [ temporary symbols ]
+// t0 - t999
 int t_count = 0;
 char* tx(){
     char* t = (char*)malloc(sizeof(5 * sizeof(char) ));
@@ -15,15 +15,11 @@ char* tx(){
 
 
 
-/*
-
-  TO COMPLETE
-
-*/
-
-char* compileExpr(AST* expr, char* r){
-    char* t = tx();
-
+// Append arithmetic instructions to list
+// Returns temp. register which holds result (on a Symbol* hashmap)
+char* compileExpr(AST* expr){
+    char* t = NULL;
+    
     switch(expr->type){
     case ADD:
 	{
@@ -31,33 +27,37 @@ char* compileExpr(AST* expr, char* r){
 	    if(expr->left->type == NUM && expr->right->type == NUM){
 		int left = ((IntVal*)expr->left)->num;
 		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %d + %d\n", t, left, right);
-
+		t = tx();
+		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
+		set_symbol_value(t, left+right);
+		printf("%s := %d + %d [ = %d ]\n", t, left, right, get_symbol_value(t));
+		
 		// int + expr
 	    }else if(expr->left->type == NUM){
-		char* tt = compileExpr(expr->right, r);
 		int left = ((IntVal*)expr->left)->num;
-		Instr* i = mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_str(tt));
-		add_instr(i, list);
-		printf("%s := %d + %s\n", t, ((IntVal*)expr->left)->num, tt);
+		char* right = compileExpr(expr->right);
+		t = tx();
+		add_instr( mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
+		set_symbol_value(t, left+get_symbol_value(right));
+		printf("%s := %d + %s [ = %d ]\n", t, left, right, get_symbol_value(t));
 		
 		// expr + int
 	    }else if(expr->right->type == NUM){
-		char* tt = compileExpr(expr->left, r);
+		char* left = compileExpr(expr->left);
 		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(PLUS, mk_atom_str(t), mk_atom_str(tt), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %s + %d\n", t, tt, ((IntVal*)expr->right)->num);
+		t = tx();
+		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
+		set_symbol_value(t, get_symbol_value(left)+right);
+		printf("%s := %s + %d [ = %d ]\n", t, left, right, get_symbol_value(t));
 		
 		// expr + expr
 	    }else{
-		char* tt0 = compileExpr(expr->left, r);
-		char* tt1 = compileExpr(expr->right, r);
-		Instr* i = mk_instr(PLUS, mk_atom_str(t), mk_atom_str(tt0), mk_atom_str(tt1));
-		add_instr(i, list);
-		printf("%s := %s + %s\n", t, tt0, tt1);
+		char* left = compileExpr(expr->left);
+		char* right = compileExpr(expr->right);
+		t = tx();
+		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
+		set_symbol_value(t, get_symbol_value(left) +  get_symbol_value(right));
+		printf("%s := %s + %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
 	    }
 
 	}
@@ -66,38 +66,6 @@ char* compileExpr(AST* expr, char* r){
 	
     case SUB:
 	{
-	    // int + int
-	    if(expr->left->type == NUM && expr->right->type == NUM){
-		int left = ((IntVal*)expr->left)->num;
-		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(MINUS, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %d - %d\n", t, left, right);
-
-		// int + expr
-	    }else if(expr->left->type == NUM){
-		char* tt = compileExpr(expr->right, r);
-		int left = ((IntVal*)expr->left)->num;
-		Instr* i = mk_instr(MINUS, mk_atom_str(t), mk_atom_int(left), mk_atom_str(tt));
-		add_instr(i, list);
-		printf("%s := %d - %s\n", t, ((IntVal*)expr->left)->num, tt);
-		
-		// expr + int
-	    }else if(expr->right->type == NUM){
-		char* tt = compileExpr(expr->left, r);
-		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(MINUS, mk_atom_str(t), mk_atom_str(tt), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %s - %d\n", t, tt, ((IntVal*)expr->right)->num);
-		
-		// expr + expr
-	    }else{
-		char* tt0 = compileExpr(expr->left, r);
-		char* tt1 = compileExpr(expr->right, r);
-		Instr* i = mk_instr(MINUS, mk_atom_str(t), mk_atom_str(tt0), mk_atom_str(tt1));
-		add_instr(i, list);
-		printf("%s := %s - %s\n", t, tt0, tt1);
-	    }
 
 	}
 	break;
@@ -105,43 +73,13 @@ char* compileExpr(AST* expr, char* r){
 	
     case MULT:
 	{
-	    // int * int
-	    if(expr->left->type == NUM && expr->right->type == NUM){
-		int left = ((IntVal*)expr->left)->num;
-		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %d * %d\n", t, left, right);
-
-		// int * expr
-	    }else if(expr->left->type == NUM){
-		char* tt = compileExpr(expr->right, r);
-		int left = ((IntVal*)expr->left)->num;
-		Instr* i = mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_str(tt));
-		add_instr(i, list);
-		printf("%s := %d * %s\n", t, ((IntVal*)expr->left)->num, tt);
-		
-		// expr * int
-	    }else if(expr->right->type == NUM){
-		char* tt = compileExpr(expr->left, r);
-		int right = ((IntVal*)expr->right)->num;
-		Instr* i = mk_instr(MULTI, mk_atom_str(t), mk_atom_str(tt), mk_atom_int(right));
-		add_instr(i, list);
-		printf("%s := %s * %d\n", t, tt, ((IntVal*)expr->right)->num);
-		
-		// expr * expr
-	    }else{
-		char* tt0 = compileExpr(expr->left, r);
-		char* tt1 = compileExpr(expr->right, r);
-		Instr* i = mk_instr(MULTI, mk_atom_str(t), mk_atom_str(tt0), mk_atom_str(tt1));
-		add_instr(i, list);
-		printf("%s := %s * %s\n", t, tt0, tt1);
-	    }
+	  
 	}
 	break;
 	
 	
     default:
+	printf("unknown case: compileExpr()\n");
 	break;
     }
 
@@ -166,12 +104,16 @@ void tree(AST* node){
 
     case ASG:
 	{
+	    t_count = 0; // reset temp var counter
 	    char* r = ((AssignVal*)node)->sym->name;
 	    AST* expr = ((AssignVal*)node)->val;
-	    char* x = compileExpr(expr, r);
-	    Instr* i = mk_instr(ATRIB, mk_atom_str(r), mk_atom_str(x), mk_atom_empty());
+	    char* t = compileExpr(expr);
+	    Instr* i = mk_instr(ATRIB, mk_atom_str(r), mk_atom_str(t), mk_atom_empty());
 	    add_instr(i, list);
-	    printf("%s := %s\n", r, x);
+	    Symbol* s = search_table(t);
+	    printf("%s := %s [ = %d ]\n", r, t, s->val);
+	    set_symbol_value(r, s->val);
+	    printf("register %s = %d\n", r, s->val);
 	}
 	break;
 
@@ -181,15 +123,22 @@ void tree(AST* node){
 	break;
 
     case WHS:
+	{
+	}
 	break;
 
     case PTL:
+	{
+	}
 	break;
 
     case RDL:
+	{
+	}
 	break;
 	
     default:
+	printf("unknown case: tree()\n");
 	break;
     }
     
@@ -200,9 +149,8 @@ void tree(AST* node){
 int main(int argc, char** argv) {
     --argc; ++argv;
 
-  
-    Instr* i = mk_instr(LABEL, mk_atom_str("main"), mk_atom_empty(), mk_atom_empty());
-    list = mk_instr_list(i, NULL);
+    // Initialize instruction list with "main" label
+    list = mk_instr_list( mk_instr(LABEL, mk_atom_str("main"), mk_atom_empty(), mk_atom_empty()), NULL);
 
     printf("\n====================\n");
     if (argc != 0) {
@@ -212,9 +160,9 @@ int main(int argc, char** argv) {
 	    return 1;
 	}
     }
-     
+
     //  yyin = stdin
-    if (yyparse() == 0) { 
+    if (yyparse() == 0) {
 	tree(root);
     }
     printf("====================\n");

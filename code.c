@@ -40,27 +40,23 @@ bool list_is_empty(InstrList* list){
     return (list == NULL) ? true : false;
 }
 
-/*
 
-  TO COMPLETE
-
-*/
 void print_list(InstrList* list){
     
     while(!list_is_empty(list)){
 
 	switch(list->i->op){
 	case ATRIB:
-	    printf("\t(ATRIB)\n");
+	    printf("\tATRIB\n");
 	    break;
 	case PLUS:
-	    printf("\t(PLUS)\n");
+	    printf("\tPLUS\n");
 	    break;
 	case MINUS:
-	    printf("\t(MINUS)\n");
+	    printf("\tMINUS\n");
 	    break;
 	case MULTI:
-	    printf("\t(MULTI)\n");
+	    printf("\tMULTI\n");
 	    break;
 	case LABEL:
 	    printf("LABEL %s:\n", list->i->a1->u.name);
