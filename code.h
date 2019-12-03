@@ -27,7 +27,7 @@ struct {
     Atom* a1;
     Atom* a2;
     Atom* a3;
-    //Atom* a4;
+    Atom* a4;
 } Instr;
 
 
@@ -50,6 +50,3 @@ Atom* mk_atom_str(char* v);
 
 
 #endif
-
-
-

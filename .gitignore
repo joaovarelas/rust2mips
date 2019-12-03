@@ -1,0 +1,12 @@
+# Temporary file (nano)
+*.swp
+# Object files
+*.o
+# Interpreter binary
+interpreter
+# Parser verbose output
+*.output
+# Auto-generated files
+parser.c
+parser.h
+scanner.c
