@@ -7,33 +7,22 @@
 
 extern void yyerror(const char* msg);
 
-
+typedef
 enum _NodeType {
-		/* NUM (int and bool as 0, 1)) */
-		NUM, SYM,
-
-		/* OPR (arithmetic) */
-		ADD, SUB, MULT, DIV, MOD,
-
-		/* CMP (comparison) */
-		GRT, GEQ, LRT, LEQ, EQT, NEQ,
-
-		/* LOG (logical operators)*/
-		NOT, AND, OR,
-
-		/* ASG (assignment)*/
-		ASG,
-		
-		/* FLW (if-then-else / while-do flow), LST (list of commands)*/
-		IFS, WHS, CMD,
-
-		/* IO funcs (println!, read_line) */
-		PTL, RDL
-
-};
-typedef enum _NodeType Type;
+		ADD, SUB, MULT, DIV, MOD, // [0 - 4] ARITHMETIC
+		GRT, GEQ, LRT, LEQ, EQT, NEQ, AND, OR, NOT, // [5 - 13] LOGIC
+		CMD, ASG, IFS, WHS, PTL, RDL, // [14 - 19] CMDS
+		NUM, SYM // [15 - 16] TERMINAL SYMBOLS
+} Type;
 
 
+typedef enum { ARI, LOG, STM, TRM } Types;
+const static int type_map[] = { ARI, ARI, ARI, ARI, ARI,
+				LOG, LOG, LOG, LOG, LOG, LOG, LOG, LOG, LOG,  
+				STM, STM, STM, STM, STM, STM,
+				TRM, TRM };
+
+    
 // Tree Struct
 struct _AST {
     int type;
@@ -95,7 +84,6 @@ struct _SymbolRef {
 typedef struct _SymbolRef SymbolRef;
 
 
-
 // Statements Struct
 struct _AssignVal {
     int type;
@@ -138,6 +126,8 @@ AST* mk_func(int type, Symbol* symbol, int number, char* string);
 
 // Build Symbols Table (Hashtable)
 Symbol hash_table[MAX_ENTRIES];
+//int hash_table[MAX_ENTRIES];
+
 unsigned int mk_hash(char *var);
 Symbol* search_table(char* var);
 void set_symbol_value(char* var, int value);

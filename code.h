@@ -3,11 +3,13 @@
 #define __code_h__
 
 extern void yyerror(const char* msg);
-
-
+    
+      
 typedef
 enum {
-      ATRIB, PLUS, MINUS, DIVI, MULTI, LABEL, GOTO, IFE, IFG, IFGE, LFL, IFLE, IFDIF
+      ATRIB, LABEL, GOTO,
+      PLUS, MINUS, DIVI, MULTI,
+      IFE, IFDIF, IFG, IFGE, LFL, IFLE,
 } OpKind;
 
 
@@ -27,7 +29,7 @@ struct {
     Atom* a1;
     Atom* a2;
     Atom* a3;
-    Atom* a4;
+    //Atom* a4;
 } Instr;
 
 
@@ -46,7 +48,6 @@ void print_list(InstrList* list);
 Atom* mk_atom_empty();
 Atom* mk_atom_int(int v);
 Atom* mk_atom_str(char* v);
-
 
 
 #endif
