@@ -9,7 +9,7 @@ typedef
 enum {
       ATRIB, LABEL, GOTO,
       PLUS, MINUS, DIVI, MULTI,
-      IFE, IFDIF, IFG, IFGE, LFL, IFLE,
+      IFE, IFDIF, IFG, IFGE, IFL, IFLE,
 } OpKind;
 
 
@@ -29,7 +29,7 @@ struct {
     Atom* a1;
     Atom* a2;
     Atom* a3;
-    //Atom* a4;
+    Atom* a4;
 } Instr;
 
 
@@ -39,7 +39,7 @@ typedef struct _InstrList {
 } InstrList;
 
 
-Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3/*, Atom* a4*/);
+Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4);
 InstrList* mk_instr_list(Instr* i, InstrList* next);
 InstrList* mk_append(InstrList* l1, InstrList* l2);
 void add_instr(Instr* instr, InstrList* list);

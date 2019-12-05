@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include "parser.h"
 
+char* compileExpr(AST* expr);
+char* compileBool(AST* expr, char* label_true, char* label_false);
+
 InstrList* list;
 
 
@@ -22,186 +25,71 @@ char* lx(){
 }
 
 
-
-// Append arithmetic instRuctions to list
-// Returns temp. register which holds result (on a Symbol* hashmap)
 char* compileExpr(AST* expr){
     char* t = NULL;
 
-    AST* e_left = expr->left;
-    AST* e_right = expr->right;
-    int left_type = e_left->type;
-    int right_type = e_right->type;
-    
-    switch(expr->type){
-    case ADD:
-	{
-	    // int + int
-	    if(type_map[left_type] == TRM && type_map[right_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
-		set_symbol_value(t, left+right);
-		printf("%s := %d + %d [ = %d ]\n", t, left, right, get_symbol_value(t));
+    switch(type_map[expr->type]){
+       
+    case TRM:
+        {
+            t = tx();
+            int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
+            set_symbol_value(t, val);
+            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
+        }
+        break;
 
-		// int + expr
-	    }else if(type_map[left_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr( mk_instr(PLUS, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
-		set_symbol_value(t, left+get_symbol_value(right));
-		printf("%s := %d + %s [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr + int
-	    }else if(type_map[right_type] == TRM){
-		char* left = compileExpr(e_left);
-		int right = ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
-		set_symbol_value(t, get_symbol_value(left)+right);
-		printf("%s := %s + %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr + expr
-	    }else{
-		char* left = compileExpr(e_left);
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(PLUS, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
-		set_symbol_value(t, get_symbol_value(left) +  get_symbol_value(right));
-		printf("%s := %s + %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
-	    }
-	}
+        
+    case ARI:
+        {
+            char* left = compileExpr(expr->left);
+            char* right = compileExpr(expr->right);
+            Type type;
+            int val;
+            switch(expr->type){
+            case ADD:
+                val = get_symbol_value(left) + get_symbol_value(right);
+                type = PLUS;
+                break;
+            case SUB:
+                val = get_symbol_value(left) - get_symbol_value(right);
+                type = MINUS;
+                break;
+            case MULT:
+                val = get_symbol_value(left) * get_symbol_value(right);
+                type = MULTI;
+                break;
+            case DIV:
+                val = get_symbol_value(left) / get_symbol_value(right);
+                type = DIVI;
+                break;
+            }
+            t = tx();
+            set_symbol_value(t, val);
+            add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right), mk_atom_empty()), list);
+        }
 	break;
+	
 
+    case LOG:
+        {
+            
+            char* l1 = lx();
+            char* l2 = lx();
+            char* t = tx();
+            set_symbol_value(t, 0);
+            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
+            char* r = compileBool(expr, l1, l2);
+            add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            set_symbol_value(t, 1);
+            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
+            add_instr( mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
 
-    case SUB:
-	{
-	    // int - int
-	    if(type_map[left_type] == TRM && type_map[right_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MINUS, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
-		set_symbol_value(t, left-right);
-		printf("%s := %d - %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// int - expr
-	    }else if(type_map[left_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr( mk_instr(MINUS, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
-		set_symbol_value(t, left-get_symbol_value(right));
-		printf("%s := %d - %s [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr - int
-	    }else if(type_map[right_type] == TRM){
-		char* left = compileExpr(e_left);
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MINUS, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
-		set_symbol_value(t, get_symbol_value(left)-right);
-		printf("%s := %s - %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr - expr
-	    }else{
-		char* left = compileExpr(e_left);
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(MINUS, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
-		set_symbol_value(t, get_symbol_value(left)-get_symbol_value(right));
-		printf("%s := %s - %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
-	    }
-	}
-	break;
-
-
-    case MULT:
-	{
-	    // int * int
-	    if(type_map[left_type] == TRM && type_map[right_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
-		set_symbol_value(t, left*right);
-		printf("%s := %d * %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// int * expr
-	    }else if(type_map[left_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
-		set_symbol_value(t, left*get_symbol_value(right));
-		printf("%s := %d * %s [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr * int
-	    }else if(type_map[right_type] == TRM){
-		char* left = compileExpr(e_left);
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
-		set_symbol_value(t, get_symbol_value(left)*right);
-		printf("%s := %s * %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr * expr
-	    }else{
-		char* left = compileExpr(e_left);
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
-		set_symbol_value(t, get_symbol_value(left)*get_symbol_value(right));
-		printf("%s := %s * %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
-	    }
-	}
-	break;
-
-    case DIV:
-	{
-	    // int / int
-	    if(type_map[left_type] == TRM && type_map[right_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
-		set_symbol_value(t, left/right);
-		printf("%s := %d / %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// int / expr
-	    }else if(type_map[left_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
-		set_symbol_value(t, left/get_symbol_value(right));
-		printf("%s := %d / %s [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr / int
-	    }else if(type_map[right_type] == TRM){
-		char* left = compileExpr(e_left);
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
-		set_symbol_value(t, get_symbol_value(left)/right);
-		printf("%s := %s / %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr / expr
-	    }else{
-		char* left = compileExpr(e_left);
-		char* right = compileExpr(e_right);
-		t = tx();
-		add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
-		set_symbol_value(t, get_symbol_value(left)/get_symbol_value(right));
-		printf("%s := %s / %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
-	    }
-	}
-	break;
-
+        }
+        break;
+            
     default:
-	printf("unknown case: compileExpr()\n");
+	printf("unknown case: compileExpr(), type_map[expr->type]\n");
 	break;
     }
 
@@ -210,92 +98,59 @@ char* compileExpr(AST* expr){
 }
 
 
-// 	GRT, GEQ, LRT, LEQ, EQT, NEQ, AND, OR, NOT,
-char* compileBool(AST* expr){
+char* compileBool(AST* expr, char* lab_t, char* lab_f){
     char* t = NULL;
     
-    AST* e_left = expr->left;
-    AST* e_right = expr->right;
-    int left_type = e_left->type;
-    int right_type = e_right->type;
-    
-    switch(expr->type){
-    case GRT:
-	{	    
-	}
-	break;
-    case GEQ:
-	{
-	}
-	break;
-    case LRT:
-	{
-	}
-	break;
-    case LEQ:
-	{
-	}
-	break;
-    case EQT:
-	{
-	}
-	break;
-    case NEQ:
-	{
-	}
-	break;
-    case AND:
-	{
-	    // bool && bool
-	    if(type_map[left_type] == TRM && type_map[right_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		//add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_int(right)), list);
-		set_symbol_value(t, left && right);
-		printf("%s := %d && %d [ = %d ]\n", t, left, right, get_symbol_value(t));
+    switch(type_map[expr->type]){
+    case LOG:
+        {
+            switch(expr->type){
+            case EQT:
+                {
+                    char* left = compileExpr(expr->left);
+                    char* right = compileExpr(expr->right);
+                    add_instr( mk_instr(IFE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                }
+                break;
+            case NEQ:
+                break;
+            case GRT:
+                break;
+            case GEQ:
+                break;
+            case LRT:
+                break;
+            case LEQ:
+                break;
 
-		// bool && expr
-	    }else if(type_map[left_type] == TRM){
-		int left = (left_type == SYM) ? ((SymbolRef*)e_left)->sym->val : ((IntVal*)e_left)->num;
-		char* right = (type_map[right_type] == LOG ) ? compileBool(e_right) : compileExpr(e_right);
-		t = tx();
-		//add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_int(left), mk_atom_str(right)), list);
-		set_symbol_value(t, left && get_symbol_value(right));
-		printf("%s := %d && %s [ = %d ]\n", t, left, right, get_symbol_value(t));
+            case AND:
+                break;
+            case OR:
+                break;
+            case NOT:
+                break;
+            }
+        }
+    case TRM:
+        {
+            int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
+            char* lab = ( val == 0 ) ? lab_f : lab_t; 
+            add_instr( mk_instr(GOTO, mk_atom_str(lab), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+        }
+        break;
+                
+    case ARI:
+        {
+            char* t = tx();
+            char* r = compileExpr(expr);
+            add_instr( mk_instr(IFDIF, mk_atom_str(t), mk_atom_int(0), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+        }
+        break;
 
-		// expr && bool
-	    }else if(type_map[right_type] == TRM){
-		char* left = (type_map[left_type] == LOG ) ? compileBool(e_left) : compileExpr(e_left);
-		int right = (right_type == SYM) ? ((SymbolRef*)e_right)->sym->val : ((IntVal*)e_right)->num;
-		t = tx();
-		//add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_int(right)), list);
-		set_symbol_value(t, get_symbol_value(left) && right);
-		printf("%s := %s && %d [ = %d ]\n", t, left, right, get_symbol_value(t));
-
-		// expr && expr
-	    }else{
-		char* left = (type_map[left_type] == LOG ) ? compileBool(e_left) : compileExpr(e_left);
-		char* right = (type_map[right_type] == LOG ) ? compileBool(e_right) : compileExpr(e_right);
-		t = tx();
-		//add_instr(mk_instr(MULTI, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right)), list);
-		set_symbol_value(t, get_symbol_value(left) && get_symbol_value(right));
-		printf("%s := %s && %s [ = %d ]\n", t, left, right,  get_symbol_value(t));
-	    }
-	}
-	break;
-    case OR:
-	{
-	}
-	break;
-    case NOT:
-	{
-	}
-	break;
-	
+        
     default:
-	printf("unknown case: compileBool()\n");
-	break;
+        printf("unknown case: compileBool()\n");
+        break;
     }
 
     return t;
@@ -304,75 +159,56 @@ char* compileBool(AST* expr){
 
 void compileCmd(AST* node){
     if(node == NULL)
-	return;
-
+        return;
+    
+    
     switch(node->type){
     case CMD:
-	compileCmd(node->left);
+        compileCmd(node->left);
         compileCmd(node->right);
-	break;
-	
-	// ARI, LOG, NUM
+        break;
+
+   
     case ASG:
-	{
-	    char* r = ((AssignVal*)node)->sym->name;
-	    AST* expr = ((AssignVal*)node)->val;
-	    int e_type = expr->type;
-	    
-	    if(type_map[e_type] == ARI){ 
-		char* t = compileExpr(expr);
-		add_instr(mk_instr(ATRIB, mk_atom_str(r), mk_atom_str(t), mk_atom_empty()), list);
-		Symbol* s = search_table(t);
-		printf("%s := %s [ = %d ]\n", r, t, s->val);
-		set_symbol_value(r, s->val);
-		//printf("%s := %d\n", r, s->val);
-	    }else if(type_map[e_type] == LOG){
-		char* t = compileBool(expr);
-		add_instr(mk_instr(ATRIB, mk_atom_str(r), mk_atom_str(t), mk_atom_empty()), list);
-		Symbol* s = search_table(t);
-		printf("%s := %s [ = %d ]\n", r, t, s->val);
-		set_symbol_value(r, s->val);
-	    }else if(type_map[e_type] == TRM){
-		char* t = tx();
-		add_instr(mk_instr(ATRIB, mk_atom_str(r), mk_atom_str(t), mk_atom_empty()), list);
-		int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
-       		Symbol* s = search_table(t);
-		set_symbol_value(t, val);
-		printf("%s := %d [ = %d ]\n", t, val, get_symbol_value(t));
-		printf("%s := %s [ = %d ]\n", r, t, val);
-		set_symbol_value(r, val);
-	    }else{
-		printf("unknown type: compileCmd(), case ASG\n");
-	    }
-	}
-	break;
+        {
+            char* var = ((AssignVal*)node)->sym->name;
+            AST* expr = ((AssignVal*)node)->val;
+            char* r = compileExpr( expr );//(type_map[node->type] == ARI) ? compileExpr(node) : compileBool(node);
+            set_symbol_value(var, get_symbol_value(r));
+            add_instr( mk_instr(ATRIB, mk_atom_str(var), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
+            
+        }
+        break;
 
     case IFS:
-	{
-	    AST* expr_cond = ((ControlFlow*)node)->cond;
-	    AST* then_cmd = ((ControlFlow*)node)->then_block;
-	    
-	}
-	break;
+        {
+            char* l1 = lx();
+            char* l2 = lx();
+            char* t = compileBool( ((ControlFlow*)node)->cond , l1, l2);
+            add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            compileCmd( ((ControlFlow*)node)->then_block );
+            add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+        }
+        break;
 
     case WHS:
-	{
-	}
-	break;
+        {
+        }
+        break;
 
     case PTL:
-	{
-	}
-	break;
+        {
+        }
+        break;
 
     case RDL:
-	{
-	}
-	break;
+        {
+        }
+        break;
 
     default:
-	printf("unknown case: compileCmd()\n");
-	break;
+        printf("unknown case: compileCmd()\n");
+        break;
     }
 
     return;
@@ -382,33 +218,33 @@ void compileCmd(AST* node){
 int main(int argc, char** argv) {
     --argc; ++argv;
 
-
+    
     // Initialize instruction list with "main" label
-    list = mk_instr_list( mk_instr(LABEL, mk_atom_str("main"), mk_atom_empty(), mk_atom_empty()), NULL);
+    list = mk_instr_list( mk_instr(LABEL, mk_atom_str("_main"), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), NULL);
 
     printf("\n====================\n");
     if (argc != 0) {
-	yyin = fopen(*argv, "r");
-	if (!yyin) {
-	    printf("'%s': could not open file\n", *argv);
-	    return 1;
-	}
+        yyin = fopen(*argv, "r");
+        if (!yyin) {
+            printf("'%s': could not open file\n", *argv);
+            return 1;
+        }
     }
 
     // print source code
     char c;
     FILE* file = fopen(*argv, "r");
     if (file) {
-	while ( ( c = getc(file)) != EOF)
-	    putchar(c);
-	fclose(file);
+        while ( ( c = getc(file)) != EOF)
+            putchar(c);
+        fclose(file);
     }
    
  
     //  yyin = stdin
     if (yyparse() == 0) {
-	printf("====================\n");
-	compileCmd(root);
+        printf("====================\n");
+        compileCmd(root);
     }
     
     printf("====================\n");
