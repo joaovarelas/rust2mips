@@ -60,8 +60,8 @@ void print_list(InstrList* list){
             printf("\tGOTO %s\n", i->a1->u.name);
             break;
         case IFE:
-            printf("\tIF %s == %s THEN GOTO %s ELSE GOTO %s\n",
-                   i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            printf("\tIF %s == %s THEN GOTO %s\n",
+                   i->a1->u.name, i->a2->u.name, i->a3->u.name);
             break;
         case IFDIF:
 	    printf("\tIFDIF\n");
