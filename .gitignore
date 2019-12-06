@@ -4,7 +4,10 @@
 *.o
 # Interpreter binary
 interpreter
+# Compiler binary
+compiler
 # Parser verbose output
+parser.output
 *.output
 # Auto-generated files
 parser.c
