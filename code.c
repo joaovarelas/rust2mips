@@ -52,7 +52,7 @@ void print_list(InstrList* list){
       break;
       case ATRIB:
       printf("\t%s := ", i->a1->u.name);
-      if(i->a2->kind == INT) printf("%d", i->a2->u.value);
+      if (i->a2->kind == INT) printf("%d", i->a2->u.value);
       else printf("%s", i->a2->u.name);
       printf("\n");
       break;
@@ -60,23 +60,40 @@ void print_list(InstrList* list){
       printf("\tGOTO %s\n", i->a1->u.name);
       break;
       case IFE:
-      printf("\tIF %s == %s THEN GOTO %s\n",
-      i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      {
+        printf("\tIF %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case IFNE:
-      printf("\tIFNE\n");
+      {
+        printf("\tIFNE %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case IFG:
-      printf("\tIFG\n");
+      {
+        printf("\tIFG %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case IFGE:
-      printf("\tIFGE\n");
+      {
+        printf("\tIFGE %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case IFL:
-      printf("\tIFL\n");
+      {
+        printf("\tIFL %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case IFLE:
-      printf("\tIFLE\n");
+      {
+        printf("\tIFLE %s == %s THEN GOTO %s\n",
+        i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      }
       break;
       case PLUS:
       printf("\t%s := %s + %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
