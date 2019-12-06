@@ -3,13 +3,13 @@
 #define __code_h__
 
 extern void yyerror(const char* msg);
-    
-      
+
+
 typedef
 enum {
       ATRIB, LABEL, GOTO,
       PLUS, MINUS, DIVI, MULTI,
-      IFE, IFDIF, IFG, IFGE, IFL, IFLE,
+      IFE, IFNE, IFG, IFGE, IFL, IFLE,
 } OpKind;
 
 
