@@ -15,7 +15,7 @@ $(PROGRAM): $(OBJS)
 	$(CC) -o $(PROGRAM) $(OBJS)
 
 clean:
-	rm -f $(PROGRAM) $(OBJS) $(INTERM) *.xml
+	rm -f $(PROGRAM) $(OBJS) $(INTERM) *.xml parser.output
 
 test: tests/*
 	for file in $^ ; do \

@@ -32,7 +32,7 @@ void add_instr(Instr* instr, InstrList* list){
     InstrList* l = list;
     while(l->next != NULL)
 	l = l->next;
-    
+
     l->next = mk_instr_list(instr, NULL);
 }
 
@@ -42,10 +42,10 @@ bool list_is_empty(InstrList* list){
 
 
 void print_list(InstrList* list){
-    
+
     while(!list_is_empty(list)){
         Instr* i = list->i;
-        
+
 	switch(i->op){
         case LABEL:
 	    printf("LABEL %s:\n", list->i->a1->u.name);
@@ -63,8 +63,8 @@ void print_list(InstrList* list){
             printf("\tIF %s == %s THEN GOTO %s\n",
                    i->a1->u.name, i->a2->u.name, i->a3->u.name);
             break;
-        case IFDIF:
-	    printf("\tIFDIF\n");
+        case IFNE:
+	    printf("\tIFNE\n");
 	    break;
         case IFG:
 	    printf("\tIFG\n");
@@ -118,7 +118,3 @@ Atom* mk_atom_str(char* v){
     a->u.name = v;
     return a;
 }
-
-
-
-
