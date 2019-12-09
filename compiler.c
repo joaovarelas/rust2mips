@@ -14,7 +14,7 @@ int ndigits(int x){
 // t0 - t999
 int t_count = 0;
 char* tx(){
-    char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) )); 
+    char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) ));
     sprintf(t, "t%d", t_count++);
     return t;
 }
@@ -106,10 +106,10 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
     switch(type_map[expr->type]){
     case REL:
         {
- 
+
             char* left = compileExpr(expr->left);
             char* right = compileExpr(expr->right);
-  
+
             switch(expr->type){
             case EQT:
                 add_instr( mk_instr(IFE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
@@ -139,7 +139,6 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
             switch(expr->type){
             case AND:
                 {
-                    l1 = lx();
                     compileBool(expr->left, l1, lab_f);
                     add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
                     compileBool(expr->right, lab_t, lab_f);
@@ -147,7 +146,6 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
                 break;
             case OR:
                 {
-                    l1 = lx();
                     compileBool(expr->left, lab_t, l1);
                     add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
                     compileBool(expr->right, lab_t, lab_f);
@@ -160,7 +158,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
             }
         }
         break;
-    
+
     case TRM:
         {
             int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
@@ -215,15 +213,23 @@ void compileCmd(AST* node){
         {
             char* l1 = lx();
             char* l2 = lx();
-            char* t = compileBool( ((ControlFlow*)node)->cond , l1, l2);
+            compileBool( ((ControlFlow*)node)->cond , l1, l2);
             add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             compileCmd( ((ControlFlow*)node)->then_block );
             add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-
     case WHS:
         {
+            char* l1 = lx();
+            char* l2 = lx();
+            char* l3 = lx();
+            add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            compileBool(((ControlFlow*)node)->cond, l2, l3);
+            add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            compileCmd(((ControlFlow*)node)->then_block);
+            add_instr(mk_instr(GOTO, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            add_instr(mk_instr(LABEL, mk_atom_str(l3), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
