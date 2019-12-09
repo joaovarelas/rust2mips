@@ -49,36 +49,36 @@ void print_list(InstrList* list){
         switch(i->op){
         case LABEL:
             printf("%s:\n", list->i->a1->u.name);
-            break;      
+            break;
         case ATRIB:
             printf("\t%s := ", i->a1->u.name);
             if (i->a2->kind == INT) printf("%d", i->a2->u.value);
             else printf("%s", i->a2->u.name);
             printf("\n");
-            break;          
+            break;
         case GOTO:
             printf("\tGOTO %s\n", i->a1->u.name);
             break;
-            
+
         case IFE:
-            printf("\tIF %s == %s GOTO %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s == %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
         case IFNE:
-            printf("\tIF %s != %s GOTO %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s != %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
         case IFG:
-            printf("\tIF %s > %s GOTO %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s > %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
         case IFGE:
-            printf("\tIF %s >= %s GOTO %s\n",  i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s >= %s GOTO %s ELSE %s\n",  i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
         case IFL:
-            printf("\tIF %s < %s GOTO %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s < %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
         case IFLE:
-            printf("\tIF %s <= %s GOTO %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\tIF %s <= %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
             break;
-            
+
         case PLUS:
             printf("\t%s := %s + %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
             break;
@@ -91,7 +91,7 @@ void print_list(InstrList* list){
         case DIVI:
             printf("\t%s := %s / %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
             break;
-            
+
         default:
             printf("unknown case: print_list()\n");
             break;
