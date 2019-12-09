@@ -18,11 +18,12 @@ enum _NodeType {
 
 
 typedef enum { ARI, REL, LOG, STM, TRM } Types;
-const static int type_map[] = { ARI, ARI, ARI, ARI, ARI,
-				REL, REL, REL, REL, REL, REL,
-                                LOG, LOG, LOG,  
-				STM, STM, STM, STM, STM, STM,
-				TRM, TRM };
+const static
+int type_map[] = { ARI, ARI, ARI, ARI, ARI,
+                   REL, REL, REL, REL, REL, REL,
+                   LOG, LOG, LOG,  
+                   STM, STM, STM, STM, STM, STM,
+                   TRM, TRM };
 
     
 // Tree Struct

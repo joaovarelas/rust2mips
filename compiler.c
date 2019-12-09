@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 #include "parser.h"
 
 char* compileExpr(AST* expr);
@@ -7,11 +8,13 @@ char* compileBool(AST* expr, char* label_true, char* label_false);
 
 InstrList* list;
 
-
+int ndigits(int x){
+    return (x == 0) ? 1 : x ;
+}
 // t0 - t999
 int t_count = 0;
 char* tx(){
-    char* t = (char*)malloc(sizeof( 5 * sizeof(char) )); // floor(log10(n)) + 1 -> nr of digits of counter
+    char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) )); 
     sprintf(t, "t%d", t_count++);
     return t;
 }
@@ -19,7 +22,7 @@ char* tx(){
 // _L0 - _L999
 int label_count = 0;
 char* lx(){
-    char* l = (char*)malloc(sizeof(6 * sizeof(char) ));
+    char* l = (char*)malloc(sizeof(ndigits(label_count) * sizeof(char) ));
     sprintf(l, "_L%d", label_count++);
     return l;
 }
@@ -70,7 +73,7 @@ char* compileExpr(AST* expr){
         }
         break;
 
-        /* Multiple Case */
+        /* Sequential Logic : TODO */
     case REL:
     case LOG:
         {
