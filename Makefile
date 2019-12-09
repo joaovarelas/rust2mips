@@ -12,7 +12,7 @@ parser.c parser.h: parser.bison
 	bison --verbose --defines=parser.h -o parser.c parser.bison
 
 $(PROGRAM): $(OBJS)
-	$(CC) -o $(PROGRAM) $(OBJS)
+	$(CC) -o $(PROGRAM) $(OBJS) -lm
 
 clean:
 	rm -f $(PROGRAM) $(OBJS) $(INTERM) *.xml parser.output

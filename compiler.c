@@ -9,7 +9,7 @@ char* compileBool(AST* expr, char* label_true, char* label_false);
 InstrList* list;
 
 int ndigits(int x){
-    return (x == 0) ? 1 : x ;
+    return (x == 0) ? floor(log(1))+1 : floor(log(x))+1 ;
 }
 // t0 - t999
 int t_count = 0;
