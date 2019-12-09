@@ -106,7 +106,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
           char* left;
           char* right;
           char* l1;
-          if (expr->type != AND && expr->type != OR) {
+          if (expr->type != AND && expr->type != OR && expr->type != NOT) {
             left = compileExpr(expr->left);
             right = compileExpr(expr->right);
           }
