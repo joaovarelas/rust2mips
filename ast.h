@@ -10,15 +10,17 @@ extern void yyerror(const char* msg);
 typedef
 enum _NodeType {
 		ADD, SUB, MULT, DIV, MOD, // [0 - 4] ARITHMETIC
-		GRT, GEQ, LRT, LEQ, EQT, NEQ, AND, OR, NOT, // [5 - 13] LOGIC
+		GRT, GEQ, LRT, LEQ, EQT, NEQ, // [5 - 10] RELATIONAL
+                AND, OR, NOT, // [11 - 13] LOGIC
 		CMD, ASG, IFS, WHS, PTL, RDL, // [14 - 19] CMDS
 		NUM, SYM // [15 - 16] TERMINAL SYMBOLS
 } Type;
 
 
-typedef enum { ARI, LOG, STM, TRM } Types;
+typedef enum { ARI, REL, LOG, STM, TRM } Types;
 const static int type_map[] = { ARI, ARI, ARI, ARI, ARI,
-				LOG, LOG, LOG, LOG, LOG, LOG, LOG, LOG, LOG,  
+				REL, REL, REL, REL, REL, REL,
+                                LOG, LOG, LOG,  
 				STM, STM, STM, STM, STM, STM,
 				TRM, TRM };
 

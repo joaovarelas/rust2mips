@@ -70,7 +70,8 @@ char* compileExpr(AST* expr){
         }
         break;
 
-
+        /* Multiple Case */
+    case REL:
     case LOG:
         {
             char* l1 = lx();
@@ -100,17 +101,12 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
     char* t = NULL;
 
     switch(type_map[expr->type]){
-    case LOG:
+    case REL:
         {
-          // TODO: Refactor compileExpr usage
-          char* left;
-          char* right;
-          char* l1;
-          if (expr->type != AND && expr->type != OR && expr->type != NOT) {
-            left = compileExpr(expr->left);
-            right = compileExpr(expr->right);
-          }
-
+ 
+            char* left = compileExpr(expr->left);
+            char* right = compileExpr(expr->right);
+  
             switch(expr->type){
             case EQT:
                 add_instr( mk_instr(IFE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
@@ -130,26 +126,38 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
             case LEQ:
                 add_instr( mk_instr(IFLE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
+            }
 
+        }
+
+    case LOG:
+        {
+            char* l1 = lx();
+            switch(expr->type){
             case AND:
-                printf(""); // C is weird ... (Can't make a declaration directly after a label)
-                l1 = lx();
-                left = compileBool(expr->left, l1, lab_f);
-                add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-                right = compileBool(expr->right, lab_t, lab_f);
+                {
+                    l1 = lx();
+                    compileBool(expr->left, l1, lab_f);
+                    add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                    compileBool(expr->right, lab_t, lab_f);
+                }
                 break;
             case OR:
-                printf("");
-                l1 = lx();
-                left = compileBool(expr->left, lab_t, l1);
-                add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-                right = compileBool(expr->right, lab_t, lab_f);
+                {
+                    l1 = lx();
+                    compileBool(expr->left, lab_t, l1);
+                    add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                    compileBool(expr->right, lab_t, lab_f);
+                }
                 break;
             case NOT:
-                compileBool(expr->left, lab_f, lab_t);
+                // Not parsed
+                //compileBool(expr->left, lab_f, lab_t);
                 break;
             }
         }
+        break;
+    
     case TRM:
         {
             int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
