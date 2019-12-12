@@ -47,35 +47,35 @@ void compileExpr(AST* expr, char* t){
         {
             char* t1 = tx();
             char* t2 = tx();
-            /*
-            char* left = compileExpr(expr->left, t);
-            char* right = compileExpr(expr->right, t);
-            */
+            compileExpr(expr->left, t1);
+            compileExpr(expr->right, t2);
             Type type;
             int val;
             switch(expr->type){
             case ADD:
                 {
-                    compileExpr(expr->left, t1);
-                    compileExpr(expr->right, t2);
                     val = get_symbol_value(t1) + get_symbol_value(t2);
                     type = PLUS;
                 }
                 break;
-                /*
             case SUB:
-                val = get_symbol_value(left) - get_symbol_value(right);
-                type = MINUS;
+                {
+                    val = get_symbol_value(t1) - get_symbol_value(t2);
+                    type = MINUS;
+                }
                 break;
             case MULT:
-                val = get_symbol_value(left) * get_symbol_value(right);
-                type = MULTI;
+                {
+                    val = get_symbol_value(t1) * get_symbol_value(t2);
+                    type = MULTI;
+                }
                 break;
             case DIV:
-                val = get_symbol_value(left) / get_symbol_value(right);
-                type = DIVI;
+                {
+                    val = get_symbol_value(t1) / get_symbol_value(t2);
+                    type = DIVI;
+                }
                 break;
-                */
             }
             //t = tx();
             set_symbol_value(t, val);
@@ -111,34 +111,36 @@ void compileExpr(AST* expr, char* t){
 
 
 char* compileBool(AST* expr, char* lab_t, char* lab_f){
-    /*
+
     char* t = tx();
 
     switch(type_map[expr->type]){
     case REL:
         {
 
-            char* left = compileExpr(expr->left, t);
-            char* right = compileExpr(expr->right, t);
+            char* t1 = tx();
+            compileExpr(expr->left, t1);
+            char* t2 = tx();
+            compileExpr(expr->right, t2);
 
             switch(expr->type){
             case EQT:
-                add_instr( mk_instr(IFE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFE, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             case NEQ:
-                add_instr( mk_instr(IFNE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFNE, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             case GRT:
-                add_instr( mk_instr(IFG, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFG, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             case GEQ:
-                add_instr( mk_instr(IFGE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFGE, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             case LRT:
-                add_instr( mk_instr(IFL, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFL, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             case LEQ:
-                add_instr( mk_instr(IFLE, mk_atom_str(left), mk_atom_str(right), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr( mk_instr(IFLE, mk_atom_str(t1), mk_atom_str(t2), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
                 break;
             }
 
@@ -164,7 +166,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
                 break;
             case NOT:
                 // Not parsed
-                //compileBool(expr->left, lab_f, lab_t);
+                compileBool(expr->left, lab_f, lab_t);
                 break;
             }
         }
@@ -181,7 +183,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
     case ARI:
         {
             //char* t = tx();
-            char* r = compileExpr(expr, t);
+            /*char* r = */compileExpr(expr, t);
             add_instr( mk_instr(IFNE, mk_atom_str(t), mk_atom_int(0), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
         }
         break;
@@ -191,8 +193,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
         printf("unknown case: compileBool()\n");
         break;
     }
-    */
-    char* t = NULL;
+
     return t;
 }
 
