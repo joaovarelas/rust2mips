@@ -54,9 +54,9 @@ void compileExpr(AST* expr, char* t){
                 break;
             }
             /*
-            int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
-            set_symbol_value(t, val);
-            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
+              int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
+              set_symbol_value(t, val);
+              add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
             */
         }
         break;
@@ -104,21 +104,21 @@ void compileExpr(AST* expr, char* t){
 
         /* Sequential Logic : TODO */
         /*
-    case REL:
-    case LOG:
-        {
-            char* l1 = lx();
-            char* l2 = lx();
-            //char* t = tx();
-            set_symbol_value(t, 0);
-            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
-            compileBool(expr, l1, l2);
-            add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-            set_symbol_value(t, 1);
-            add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
-            add_instr( mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-        }
-        break;
+          case REL:
+          case LOG:
+          {
+          char* l1 = lx();
+          char* l2 = lx();
+          //char* t = tx();
+          set_symbol_value(t, 0);
+          add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
+          compileBool(expr, l1, l2);
+          add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+          set_symbol_value(t, 1);
+          add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
+          add_instr( mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+          }
+          break;
         */
     default:
         printf("unknown case: compileExpr(), type_map[expr->type]\n");
@@ -311,7 +311,8 @@ int main(int argc, char** argv) {
         fclose(file);
     }
 
-
+    
+ 
     //  yyin = stdin
     if (yyparse() == 0) {
         printf("====================\n");
@@ -320,6 +321,7 @@ int main(int argc, char** argv) {
 
     printf("====================\n");
     print_list(list);
+    
 
     return 0;
 }
