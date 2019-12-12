@@ -3,7 +3,7 @@
 #include <math.h>
 #include "parser.h"
 
-char* compileExpr(AST* expr);
+void compileExpr(AST* expr, char* t);
 char* compileBool(AST* expr, char* label_true, char* label_false);
 
 InstrList* list;
@@ -28,14 +28,14 @@ char* lx(){
 }
 
 
-char* compileExpr(AST* expr){
-    char* t = NULL;
+void compileExpr(AST* expr, char* t){
+    //char* t = NULL;
 
     switch(type_map[expr->type]){
 
     case TRM:
         {
-            t = tx();
+            //t = tx();
             int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
             set_symbol_value(t, val);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
@@ -45,15 +45,24 @@ char* compileExpr(AST* expr){
 
     case ARI:
         {
-            char* left = compileExpr(expr->left);
-            char* right = compileExpr(expr->right);
+            char* t1 = tx();
+            char* t2 = tx();
+            /*
+            char* left = compileExpr(expr->left, t);
+            char* right = compileExpr(expr->right, t);
+            */
             Type type;
             int val;
             switch(expr->type){
             case ADD:
-                val = get_symbol_value(left) + get_symbol_value(right);
-                type = PLUS;
+                {
+                    compileExpr(expr->left, t1);
+                    compileExpr(expr->right, t2);
+                    val = get_symbol_value(t1) + get_symbol_value(t2);
+                    type = PLUS;
+                }
                 break;
+                /*
             case SUB:
                 val = get_symbol_value(left) - get_symbol_value(right);
                 type = MINUS;
@@ -66,10 +75,11 @@ char* compileExpr(AST* expr){
                 val = get_symbol_value(left) / get_symbol_value(right);
                 type = DIVI;
                 break;
+                */
             }
-            t = tx();
+            //t = tx();
             set_symbol_value(t, val);
-            add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(left), mk_atom_str(right), mk_atom_empty()), list);
+            add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(t1), mk_atom_str(t2), mk_atom_empty()), list);
         }
         break;
 
@@ -79,10 +89,10 @@ char* compileExpr(AST* expr){
         {
             char* l1 = lx();
             char* l2 = lx();
-            char* t = tx();
+            //char* t = tx();
             set_symbol_value(t, 0);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
-            char* r = compileBool(expr, l1, l2);
+            /*char* r = */compileBool(expr, l1, l2);
             add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
             set_symbol_value(t, 1);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
@@ -95,20 +105,21 @@ char* compileExpr(AST* expr){
         break;
     }
 
-    return t;
+    return; //t;
 
 }
 
 
 char* compileBool(AST* expr, char* lab_t, char* lab_f){
-    char* t = NULL;
+    /*
+    char* t = tx();
 
     switch(type_map[expr->type]){
     case REL:
         {
 
-            char* left = compileExpr(expr->left);
-            char* right = compileExpr(expr->right);
+            char* left = compileExpr(expr->left, t);
+            char* right = compileExpr(expr->right, t);
 
             switch(expr->type){
             case EQT:
@@ -169,8 +180,8 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
 
     case ARI:
         {
-            char* t = tx();
-            char* r = compileExpr(expr);
+            //char* t = tx();
+            char* r = compileExpr(expr, t);
             add_instr( mk_instr(IFNE, mk_atom_str(t), mk_atom_int(0), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
         }
         break;
@@ -180,7 +191,8 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
         printf("unknown case: compileBool()\n");
         break;
     }
-
+    */
+    char* t = NULL;
     return t;
 }
 
@@ -202,8 +214,9 @@ void compileCmd(AST* node){
     case ASG:
         {
             char* var = ((AssignVal*)node)->sym->name;
+            char* r = tx();
             AST* expr = ((AssignVal*)node)->val;
-            char* r = compileExpr( expr );
+            /*char* r = */compileExpr( expr, r );
             set_symbol_value(var, get_symbol_value(r));
             add_instr( mk_instr(ATRIB, mk_atom_str(var), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
