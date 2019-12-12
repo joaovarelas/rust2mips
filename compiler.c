@@ -36,9 +36,28 @@ void compileExpr(AST* expr, char* t){
     case TRM:
         {
             //t = tx();
+            
+            switch(expr->type){
+            case SYM:
+                {
+                    char* val = ((SymbolRef*)expr)->sym->name;
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(val), mk_atom_empty(), mk_atom_empty()), list);
+                    
+                }
+                break;
+            case NUM:
+                {
+                    int val = ((IntVal*)expr)->num;
+                    set_symbol_value(t, val);
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
+                }
+                break;
+            }
+            /*
             int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
             set_symbol_value(t, val);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
+            */
         }
         break;
 
@@ -84,6 +103,7 @@ void compileExpr(AST* expr, char* t){
         break;
 
         /* Sequential Logic : TODO */
+        /*
     case REL:
     case LOG:
         {
@@ -92,14 +112,14 @@ void compileExpr(AST* expr, char* t){
             //char* t = tx();
             set_symbol_value(t, 0);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
-            /*char* r = */compileBool(expr, l1, l2);
+            compileBool(expr, l1, l2);
             add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
             set_symbol_value(t, 1);
             add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
             add_instr( mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-
+        */
     default:
         printf("unknown case: compileExpr(), type_map[expr->type]\n");
         break;
