@@ -5,7 +5,7 @@
 
 // Prototypes
 void compileExpr(AST* expr, char* t);
-char* compileBool(AST* expr, char* label_true, char* label_false);
+void compileBool(AST* expr, char* label_true, char* label_false);
 
 InstrList* list;
 
@@ -110,9 +110,7 @@ void compileExpr(AST* expr, char* t){
 }
 
 
-char* compileBool(AST* expr, char* lab_t, char* lab_f){
-
-    char* t = tx();
+void compileBool(AST* expr, char* lab_t, char* lab_f){
 
     switch(type_map[expr->type]){
     case REL:
@@ -145,55 +143,48 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
             }
 
         }
-
-    case LOG:
+        /* falta verificar p variaveis (TRM->SYM) true false */
+    case NUM:
         {
-            char* l1 = lx();
-            switch(expr->type){
-            case AND:
-                {
-                    compileBool(expr->left, l1, lab_f);
-                    add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-                    compileBool(expr->right, lab_t, lab_f);
-                }
-                break;
-            case OR:
-                {
-                    compileBool(expr->left, lab_t, l1);
-                    add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-                    compileBool(expr->right, lab_t, lab_f);
-                }
-                break;
-            case NOT:
-                // Not parsed
-                compileBool(expr->left, lab_f, lab_t);
-                break;
-            }
+            int val = ((IntVal*)expr)->num;
+            if( val == 1 )
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            else if( val == 0 )
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-
-    case TRM:
+        
+    case LOG:
         {
-            int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
-            char* lab = ( val == 0 ) ? lab_f : lab_t;
-            add_instr( mk_instr(GOTO, mk_atom_str(lab), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            char* arg2 = lx();
+            switch(expr->type){
+            case AND:
+                compileBool(expr->left, arg2, lab_f);
+                break;
+                
+            case OR:
+                compileBool(expr->left, lab_t, arg2);
+                break;
+            }
+            add_instr( mk_instr(LABEL, mk_atom_str(arg2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            compileBool(expr->right, lab_t, lab_f);
         }
         break;
 
     case ARI:
         {
+            char* t = tx();
             compileExpr(expr, t);
-            add_instr( mk_instr(IFNE, mk_atom_str(t), mk_atom_int(0), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+            add_instr( mk_instr(IFNE, mk_atom_str(t), mk_atom_int(0),  mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
         }
         break;
-
 
     default:
         printf("unknown case: compileBool()\n");
         break;
     }
 
-    return t;
+    return;
 }
 
 
