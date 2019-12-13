@@ -22,7 +22,6 @@ InstrList* mk_instr_list(Instr* i, InstrList* next){
     return instr;
 }
 
-
 InstrList* mk_append(InstrList* l1, InstrList* l2){
     if(l1 == NULL) return l2;
     else return mk_instr_list(l1->i, mk_append(l1->next, l2));
@@ -40,8 +39,28 @@ bool list_is_empty(InstrList* list){
     return (list == NULL) ? true : false;
 }
 
+Atom* mk_atom_empty(){
+    Atom* a = (Atom*)malloc(sizeof(Atom));
+    a->kind = EMPTY;
+    return a;
+}
 
-void print_list(InstrList* list){
+Atom* mk_atom_int(int v){
+    Atom* a = (Atom*)malloc(sizeof(Atom));
+    a->kind = INT;
+    a->u.value = v;
+    return a;
+}
+
+Atom* mk_atom_str(char* v){
+    Atom* a = (Atom*)malloc(sizeof(Atom));
+    a->kind = STR;
+    a->u.name = v;
+    return a;
+}
+
+
+void print_3AC(InstrList* list){
 
     while(!list_is_empty(list)){
         Instr* i = list->i;
@@ -53,7 +72,7 @@ void print_list(InstrList* list){
         case ATRIB:
             printf("\t%s := ", i->a1->u.name);
             if (i->a2->kind == INT) printf("%d", i->a2->u.value);
-            else printf("%s [%d]", i->a2->u.name, get_symbol_value(i->a2->u.name));
+            else printf("%s", i->a2->u.name);
             printf("\n");
             break;
         case GOTO:
@@ -93,30 +112,96 @@ void print_list(InstrList* list){
             break;
 
         default:
-            printf("unknown case: print_list()\n");
+            printf("unknown case: print_3AC()\n");
             break;
         }
         list = list->next;
     }
 }
 
+void print_MIPS(InstrList* list){
 
-Atom* mk_atom_empty(){
-    Atom* a = (Atom*)malloc(sizeof(Atom));
-    a->kind = EMPTY;
-    return a;
-}
+    while(!list_is_empty(list)){
+        Instr* i = list->i;
 
-Atom* mk_atom_int(int v){
-    Atom* a = (Atom*)malloc(sizeof(Atom));
-    a->kind = INT;
-    a->u.value = v;
-    return a;
-}
+        switch(i->op){
+        case LABEL:
+            {
+                printf("%s:\n", list->i->a1->u.name);
+                break;
+            }
+        case ATRIB:
+            {
+                if (i->a2->kind == INT) {
+                  printf("li %s, %d", i->a1->u.name, i->a2->u.value);
+                } else {
+                  printf("lw %s, 8(%s)", i->a1->u.name, i->a2->u.name);
+                }
+                printf("\n");
+            }
+            break;
+        case GOTO:
+            {
+                printf("\tj %s\n", i->a1->u.name);
+                break;
+            }
+        case IFE:
+            //printf("\tIF %s == %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
+        case IFNE:
+            //printf("\tIF %s != %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
+        case IFG:
+            //printf("\tIF %s > %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
+        case IFGE:
+            //printf("\tIF %s >= %s GOTO %s ELSE %s\n",  i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
+        case IFL:
+            //printf("\tIF %s < %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
+        case IFLE:
+            //printf("\tIF %s <= %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            break;
 
-Atom* mk_atom_str(char* v){
-    Atom* a = (Atom*)malloc(sizeof(Atom));
-    a->kind = STR;
-    a->u.name = v;
-    return a;
+        case PLUS:
+            {
+                printf("add %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
+        case MINUS:
+            {
+                printf("sub %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
+        case MULTI:
+            {
+                if (i->a1->u.name == i->a2->u.name) {
+                  printf("mult %s, %s\n", i->a1->u.name, i->a3->u.name);
+                } else if (i->a1->u.name == i->a3->u.name) {
+                  printf("mult %s, %s\n", i->a1->u.name, i->a2->u.name);
+                } else {
+                  printf("lw %s, %s\n", i->a1->u.name, i->a2->u.name);
+                  printf("mult %s, %s\n", i->a1->u.name, i->a3->u.name);
+                }
+                break;
+            }
+        case DIVI:
+            {
+                if (i->a1->u.name == i->a2->u.name) {
+                  printf("div %s, %s\n", i->a1->u.name, i->a3->u.name);
+                } else if (i->a1->u.name == i->a3->u.name) {
+                  printf("div %s, %s\n", i->a1->u.name, i->a2->u.name);
+                } else {
+                  printf("lw %s, %s\n", i->a1->u.name, i->a2->u.name);
+                  printf("div %s, %s\n", i->a1->u.name, i->a3->u.name);
+                }
+                break;
+            }
+        default:
+            printf("unknown case: print_MIPS()\n");
+            break;
+        }
+        list = list->next;
+    }
 }

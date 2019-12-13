@@ -45,10 +45,10 @@ InstrList* mk_instr_list(Instr* i, InstrList* next);
 InstrList* mk_append(InstrList* l1, InstrList* l2);
 void add_instr(Instr* instr, InstrList* list);
 bool list_is_empty(InstrList* list);
-void print_list(InstrList* list);
 Atom* mk_atom_empty();
 Atom* mk_atom_int(int v);
 Atom* mk_atom_str(char* v);
-
+void print_3AC(InstrList* list);
+void print_MIPS(InstrList* list);
 
 #endif

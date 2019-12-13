@@ -17,7 +17,7 @@ int ndigits(int x){
 int t_count = 0;
 char* tx(){
     char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) ));
-    sprintf(t, "t%d", t_count++);
+    sprintf(t, "$t%d", t_count++);
     return t;
 }
 
@@ -38,7 +38,7 @@ void compileExpr(AST* expr, char* t){
     case TRM:
         {
             //t = tx();
-            
+
             switch(expr->type){
             case NUM:
                 {
@@ -67,7 +67,7 @@ void compileExpr(AST* expr, char* t){
             compileExpr(expr->right, t2);
             Type type;
             int val;
-            
+
             switch(expr->type){
             case ADD:
                 {
@@ -94,12 +94,12 @@ void compileExpr(AST* expr, char* t){
                 }
                 break;
             }
-            set_symbol_value(t, val);          
+            set_symbol_value(t, val);
             add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(t1), mk_atom_str(t2), mk_atom_empty()), list);
         }
         break;
 
-        
+
     default:
         printf("unknown case: compileExpr(), type_map[expr->type]\n");
         break;
@@ -153,7 +153,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
                 add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-        
+
     case LOG:
         {
             char* arg2 = lx();
@@ -161,7 +161,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
             case AND:
                 compileBool(expr->left, arg2, lab_f);
                 break;
-                
+
             case OR:
                 compileBool(expr->left, lab_t, arg2);
                 break;
@@ -223,7 +223,7 @@ void compileCmd(AST* cmd){
             compileBool( ifcmd->cond , l1, l2);
             add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             compileCmd( ifcmd->then_block );
-            
+
             // IF THEN
             if(ifcmd->else_block == NULL){
                 add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
@@ -235,8 +235,8 @@ void compileCmd(AST* cmd){
                 add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
                 compileCmd( ifcmd->else_block );
                 add_instr(mk_instr(LABEL, mk_atom_str(l3), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-            }           
-    
+            }
+
         }
         break;
     case WHS:
@@ -297,8 +297,8 @@ int main(int argc, char** argv) {
         fclose(file);
     }
 
-    
- 
+
+
     //  yyin = stdin
     if (yyparse() == 0) {
         printf("====================\n");
@@ -306,8 +306,10 @@ int main(int argc, char** argv) {
     }
 
     printf("====================\n");
-    print_list(list);
-    
+    print_3AC(list);
+    printf("====================\n");
+    print_MIPS(list);
+
 
     return 0;
 }
