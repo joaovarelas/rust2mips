@@ -53,7 +53,7 @@ void print_list(InstrList* list){
         case ATRIB:
             printf("\t%s := ", i->a1->u.name);
             if (i->a2->kind == INT) printf("%d", i->a2->u.value);
-            else printf("%s", i->a2->u.name);
+            else printf("%s [%d]", i->a2->u.name, get_symbol_value(i->a2->u.name));
             printf("\n");
             break;
         case GOTO:

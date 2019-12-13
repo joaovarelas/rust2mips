@@ -3,14 +3,16 @@
 #include <math.h>
 #include "parser.h"
 
+// Prototypes
 void compileExpr(AST* expr, char* t);
 char* compileBool(AST* expr, char* label_true, char* label_false);
 
 InstrList* list;
 
 int ndigits(int x){
-    return (x == 0) ? floor(log(1))+1 : floor(log(x))+1 ;
+    return (x == 0) ? 1 : floor(log(x))+1 ;
 }
+
 // t0 - t999
 int t_count = 0;
 char* tx(){
@@ -22,7 +24,7 @@ char* tx(){
 // _L0 - _L999
 int label_count = 0;
 char* lx(){
-    char* l = (char*)malloc(sizeof(ndigits(label_count) * sizeof(char) ));
+    char* l = (char*)malloc( sizeof(ndigits(label_count) * sizeof(char) ));
     sprintf(l, "_L%d", label_count++);
     return l;
 }
@@ -38,13 +40,6 @@ void compileExpr(AST* expr, char* t){
             //t = tx();
             
             switch(expr->type){
-            case SYM:
-                {
-                    char* val = ((SymbolRef*)expr)->sym->name;
-                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(val), mk_atom_empty(), mk_atom_empty()), list);
-                    
-                }
-                break;
             case NUM:
                 {
                     int val = ((IntVal*)expr)->num;
@@ -52,12 +47,14 @@ void compileExpr(AST* expr, char* t){
                     add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
                 }
                 break;
+            case SYM:
+                {
+                    char* val = ((SymbolRef*)expr)->sym->name;
+                    set_symbol_value(t, ((SymbolRef*)expr)->sym->val);
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(val), mk_atom_empty(), mk_atom_empty()), list);
+                }
+                break;
             }
-            /*
-              int val = (expr->type == SYM) ? ((SymbolRef*)expr)->sym->val : ((IntVal*)expr)->num;
-              set_symbol_value(t, val);
-              add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
-            */
         }
         break;
 
@@ -70,6 +67,7 @@ void compileExpr(AST* expr, char* t){
             compileExpr(expr->right, t2);
             Type type;
             int val;
+            
             switch(expr->type){
             case ADD:
                 {
@@ -96,30 +94,12 @@ void compileExpr(AST* expr, char* t){
                 }
                 break;
             }
-            //t = tx();
-            set_symbol_value(t, val);
+            set_symbol_value(t, val);          
             add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(t1), mk_atom_str(t2), mk_atom_empty()), list);
         }
         break;
 
-        /* Sequential Logic : TODO */
-        /*
-          case REL:
-          case LOG:
-          {
-          char* l1 = lx();
-          char* l2 = lx();
-          //char* t = tx();
-          set_symbol_value(t, 0);
-          add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
-          compileBool(expr, l1, l2);
-          add_instr( mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-          set_symbol_value(t, 1);
-          add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(1), mk_atom_empty(), mk_atom_empty()), list);
-          add_instr( mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-          }
-          break;
-        */
+        
     default:
         printf("unknown case: compileExpr(), type_map[expr->type]\n");
         break;
@@ -202,8 +182,7 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
 
     case ARI:
         {
-            //char* t = tx();
-            /*char* r = */compileExpr(expr, t);
+            compileExpr(expr, t);
             add_instr( mk_instr(IFNE, mk_atom_str(t), mk_atom_int(0), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
         }
         break;
@@ -218,26 +197,27 @@ char* compileBool(AST* expr, char* lab_t, char* lab_f){
 }
 
 
-void compileCmd(AST* node){
-    if (node == NULL)
+void compileCmd(AST* cmd){
+    if (cmd == NULL)
         return;
 
 
-    switch (node->type) {
+    switch (cmd->type) {
     case CMD:
         {
-            compileCmd(node->left);
-            compileCmd(node->right);
+            compileCmd(cmd->left);
+            compileCmd(cmd->right);
         }
         break;
 
 
     case ASG:
         {
-            char* var = ((AssignVal*)node)->sym->name;
+            char* var = ((AssignVal*)cmd)->sym->name;
+            // Symbol* s = search_table(var); // verificar
             char* r = tx();
-            AST* expr = ((AssignVal*)node)->val;
-            /*char* r = */compileExpr( expr, r );
+            AST* expr = ((AssignVal*)cmd)->val;
+            compileExpr( expr, r );
             set_symbol_value(var, get_symbol_value(r));
             add_instr( mk_instr(ATRIB, mk_atom_str(var), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
@@ -245,12 +225,27 @@ void compileCmd(AST* node){
 
     case IFS:
         {
+
+            ControlFlow* ifcmd = (ControlFlow*)cmd;
             char* l1 = lx();
             char* l2 = lx();
-            compileBool( ((ControlFlow*)node)->cond , l1, l2);
+            compileBool( ifcmd->cond , l1, l2);
             add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-            compileCmd( ((ControlFlow*)node)->then_block );
-            add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            compileCmd( ifcmd->then_block );
+            
+            // IF THEN
+            if(ifcmd->else_block == NULL){
+                add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+
+                // IF THEN ELSE
+            }else{
+                char* l3 = lx();
+                add_instr(mk_instr(GOTO, mk_atom_str(l3), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                compileCmd( ifcmd->else_block );
+                add_instr(mk_instr(LABEL, mk_atom_str(l3), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            }           
+    
         }
         break;
     case WHS:
@@ -259,9 +254,9 @@ void compileCmd(AST* node){
             char* l2 = lx();
             char* l3 = lx();
             add_instr(mk_instr(LABEL, mk_atom_str(l1), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-            compileBool(((ControlFlow*)node)->cond, l2, l3);
+            compileBool(((ControlFlow*)cmd)->cond, l2, l3);
             add_instr(mk_instr(LABEL, mk_atom_str(l2), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-            compileCmd(((ControlFlow*)node)->then_block);
+            compileCmd(((ControlFlow*)cmd)->then_block);
             add_instr(mk_instr(GOTO, mk_atom_str(l1), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
             add_instr(mk_instr(LABEL, mk_atom_str(l3), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
