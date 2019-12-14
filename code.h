@@ -10,7 +10,7 @@ enum {
       ATRIB, LABEL, GOTO,
       PLUS, MINUS, DIVI, MULTI,
       IFE, IFNE, IFG, IFGE, IFL, IFLE,
-      PRINTS, PRINT, READ
+      PRINT, READ
 } OpKind;
 
 

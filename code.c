@@ -194,6 +194,22 @@ void print_MIPS(InstrList* list){
                 printf("div %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
                 break;
             }
+        case PRINT:
+            {
+                // Print Integer Syscall
+                printf("li $v0, 1\n");
+                printf("add $a0, %s, $zero\n", i->a1->u.name);
+                printf("syscall\n");
+                break;
+            }
+        case READ:
+            {
+                // Read Integer Syscall
+                printf("li $v0, 5\n");
+                printf("syscall\n");
+                printf("add %s, $v0, $zero\n", i->a1->u.name);
+                break;
+            }
         default:
             printf("unknown case: print_MIPS()\n");
             break;
