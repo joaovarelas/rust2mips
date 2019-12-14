@@ -35,37 +35,6 @@ struct _AST {
 typedef struct _AST AST;
 
 
-/*
-  struct _IntExpr {
-  enum { IntNum, IntOp } kind;
-  union {
-  int num;
-  struct {
-  enum { ADD, SUB, MULT, DIV, MOD } type;
-  struct _IntExpr *left;
-  struct _IntExpr *right;
-  } op;
-  } u;
-  };
-  typedef struct _IntExpr IntExpr;
-
-
-  struct _BoolExpr {
-  enum { BoolVal, BoolOp } kind;
-  union {
-  bool val;
-  struct {
-  enum { GRT, GEQ, LRT, LEQ, NEQ, EQT, NOT, AND, OR } type;
-  struct _BoolExpr *left;
-  struct _BoolExpr *right;
-  } op;
-  } u;
-  };
-  typedef struct _BoolExpr BoolExpr;
-*/
-
-
-
 
 // Terminal Symbols
 struct _IntVal {
@@ -137,4 +106,34 @@ void set_symbol_value(char* var, int value);
 int get_symbol_value(char* var);
 
 #endif
+
+
+/*
+  struct _IntExpr {
+  enum { IntNum, IntOp } kind;
+  union {
+  int num;
+  struct {
+  enum { ADD, SUB, MULT, DIV, MOD } type;
+  struct _IntExpr *left;
+  struct _IntExpr *right;
+  } op;
+  } u;
+  };
+  typedef struct _IntExpr IntExpr;
+
+
+  struct _BoolExpr {
+  enum { BoolVal, BoolOp } kind;
+  union {
+  bool val;
+  struct {
+  enum { GRT, GEQ, LRT, LEQ, NEQ, EQT, NOT, AND, OR } type;
+  struct _BoolExpr *left;
+  struct _BoolExpr *right;
+  } op;
+  } u;
+  };
+  typedef struct _BoolExpr BoolExpr;
+*/
 

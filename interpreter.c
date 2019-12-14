@@ -236,6 +236,7 @@ int eval(AST* ast, int depth, bool flag){
   }
 
 
+/*
   int main(int argc, char** argv) {
     --argc; ++argv;
     if (argc != 0) {
@@ -255,3 +256,4 @@ int eval(AST* ast, int depth, bool flag){
 
 
   }
+*/

@@ -276,6 +276,9 @@ void compileCmd(AST* cmd){
         break;
     }
 
+    // Reset counter and make available for reusing
+    t_count = 0;
+
     return;
 }
 
@@ -313,8 +316,10 @@ int main(int argc, char** argv) {
         compileCmd(root);
     }
 
-    // printf("====================\n");
-    // print_3AC(list);
+    add_instr( mk_instr(EXIT, mk_atom_empty(), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+    
+    printf("====================\n");
+    print_3AC(list);
     printf("====================\n");
     print_MIPS(list);
 

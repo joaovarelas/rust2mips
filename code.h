@@ -10,7 +10,8 @@ enum {
       ATRIB, LABEL, GOTO,
       PLUS, MINUS, DIVI, MULTI, MODUL,
       IFE, IFNE, IFG, IFGE, IFL, IFLE,
-      PRINT, READ
+      PRINT, PRINTS, READ,
+      EXIT
 } OpKind;
 
 
@@ -39,6 +40,11 @@ typedef struct _InstrList {
     struct _InstrList* next;
 } InstrList;
 
+
+typedef struct _RegStack {
+    int size;
+    // char** array;
+} RegStack;
 
 Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4);
 InstrList* mk_instr_list(Instr* i, InstrList* next);
