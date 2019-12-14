@@ -1,14 +1,13 @@
 // Euclids GCD Algorithm
 
 fn main() {
-  let a = 0;
-  let b = 0;
-  let c = 0;
+  let a = 21;
+  let b = 105;
 
-  println!("Please insert value of 'a': ");
+  // println!("Please insert value of 'a': ");
   read_line(a);
 
-  println!("Please insert value of 'b': ");
+  // println!("Please insert value of 'b': ");
   read_line(b);
 
   while b != 0 {
@@ -17,7 +16,7 @@ fn main() {
   	a = t;
   }
 
-  println!("The result is: ");
+  // println!("The result is: ");
   println!(a);
   // println!(b);
 }
