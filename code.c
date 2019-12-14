@@ -133,37 +133,47 @@ void print_MIPS(InstrList* list){
         case ATRIB:
             {
                 if (i->a2->kind == INT) {
-                  printf("li %s, %d", i->a1->u.name, i->a2->u.value);
+                  printf("li %s, %d\n", i->a1->u.name, i->a2->u.value);
                 } else {
-                  printf("lw %s, 8(%s)", i->a1->u.name, i->a2->u.name);
+                  printf("lw %s, 8(%s)\n", i->a1->u.name, i->a2->u.name);
                 }
-                printf("\n");
             }
             break;
         case GOTO:
             {
-                printf("\tj %s\n", i->a1->u.name);
+                printf("j %s\n", i->a1->u.name);
                 break;
             }
         case IFE:
-            //printf("\tIF %s == %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
+            {
+                printf("beq %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case IFNE:
-            //printf("\tIF %s != %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
+            {
+                printf("bne %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case IFG:
-            //printf("\tIF %s > %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
+            {
+                printf("bgt %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case IFGE:
-            //printf("\tIF %s >= %s GOTO %s ELSE %s\n",  i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
+            {
+                printf("bge %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case IFL:
-            //printf("\tIF %s < %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
+            {
+                printf("blt %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case IFLE:
-            //printf("\tIF %s <= %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
-            break;
-
+            {
+                printf("bge %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+                break;
+            }
         case PLUS:
             {
                 printf("add %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
@@ -176,26 +186,12 @@ void print_MIPS(InstrList* list){
             }
         case MULTI:
             {
-                if (i->a1->u.name == i->a2->u.name) {
-                  printf("mult %s, %s\n", i->a1->u.name, i->a3->u.name);
-                } else if (i->a1->u.name == i->a3->u.name) {
-                  printf("mult %s, %s\n", i->a1->u.name, i->a2->u.name);
-                } else {
-                  printf("lw %s, %s\n", i->a1->u.name, i->a2->u.name);
-                  printf("mult %s, %s\n", i->a1->u.name, i->a3->u.name);
-                }
+                printf("mult %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
                 break;
             }
         case DIVI:
             {
-                if (i->a1->u.name == i->a2->u.name) {
-                  printf("div %s, %s\n", i->a1->u.name, i->a3->u.name);
-                } else if (i->a1->u.name == i->a3->u.name) {
-                  printf("div %s, %s\n", i->a1->u.name, i->a2->u.name);
-                } else {
-                  printf("lw %s, %s\n", i->a1->u.name, i->a2->u.name);
-                  printf("div %s, %s\n", i->a1->u.name, i->a3->u.name);
-                }
+                printf("div %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
                 break;
             }
         default:
