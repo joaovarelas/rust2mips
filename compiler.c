@@ -255,13 +255,13 @@ void compileCmd(AST* cmd){
 
     case PTL:
         {
-            // add_instr(mk_instr(PRINT, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            add_instr(mk_instr(PRINT, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
     case RDL:
         {
-            // add_instr(mk_instr(READ, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            add_instr(mk_instr(READ, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
