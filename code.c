@@ -110,6 +110,9 @@ void print_3AC(InstrList* list){
       case DIVI:
       printf("\t%s := %s / %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
       break;
+      case MODUL:
+      printf("\t%s := %s %% %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+      break;
 
       default:
       printf("unknown case: print_3AC()\n");
@@ -194,6 +197,11 @@ void print_MIPS(InstrList* list){
         printf("div %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
         break;
       }
+      case MODUL:
+      {
+        printf("rem %s, %s, %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+        break;
+      }
       case PRINT:
       {
         // Print Integer Syscall
@@ -213,8 +221,11 @@ void print_MIPS(InstrList* list){
         break;
       }
       default:
-      printf("unknown case: print_MIPS()\n");
-      break;
+      {
+        // Unknown case? NOP!
+        printf("nop\n");
+        break;
+      }
     }
     list = list->next;
   }

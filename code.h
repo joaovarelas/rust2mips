@@ -8,7 +8,7 @@ extern void yyerror(const char* msg);
 typedef
 enum {
       ATRIB, LABEL, GOTO,
-      PLUS, MINUS, DIVI, MULTI,
+      PLUS, MINUS, DIVI, MULTI, MODUL,
       IFE, IFNE, IFG, IFGE, IFL, IFLE,
       PRINT, READ
 } OpKind;

@@ -93,6 +93,12 @@ void compileExpr(AST* expr, char* t){
                     type = DIVI;
                 }
                 break;
+            case MOD:
+                {
+                    val = get_symbol_value(t1) % get_symbol_value(t2);
+                    type = MODUL;
+                }
+                break;
             }
             set_symbol_value(t, val);
             add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(t1), mk_atom_str(t2), mk_atom_empty()), list);
@@ -307,8 +313,8 @@ int main(int argc, char** argv) {
         compileCmd(root);
     }
 
-    printf("====================\n");
-    print_3AC(list);
+    // printf("====================\n");
+    // print_3AC(list);
     printf("====================\n");
     print_MIPS(list);
 
