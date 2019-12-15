@@ -139,11 +139,13 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
             if (expr->type == NUM && ((IntVal*)expr)->num != 0) {
               add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             } else if (expr->type == SYM) {
-              // HERE:
-              add_instr( mk_instr(IFNE, mk_atom_str("SIMBOLO ATUAL"), mk_atom_str("NUMERO ZERO"), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
-            } else {
-              add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                Symbol* s = ((SymbolRef*)expr)->sym;
+                char* t = tx();
+                add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
+                add_instr( mk_instr(IFNE, mk_atom_str( get_register(s->name)), mk_atom_str(t), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
             }
+              add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            
           }
         break;
 
@@ -304,7 +306,7 @@ int main(int argc, char** argv) {
         fclose(file);
     }
 
-    FILE* output = fopen("mips.asm", "w");
+    FILE* output = fopen("mips_program.asm", "w");
 
     //  yyin = stdin
     if (yyparse() == 0) {
@@ -326,7 +328,8 @@ int main(int argc, char** argv) {
     printf("MIPS ASSEMBLY\n");
     printf("====================\n");
     print_MIPS(list, output);
-
     fclose(output);
+
+    printf("\n[+] MIPS assembly generated to file: 'mips_program.asm'\n");
     return 0;
 }
