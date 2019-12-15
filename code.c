@@ -148,9 +148,10 @@ void print_3AC(InstrList* list){
 
 
 
-void print_MIPS(InstrList* list){
+void print_MIPS(InstrList* list, FILE* output){
 
     printf("\t.text\n");
+    fprintf(output, "\t.text\n");
 
     while(!list_is_empty(list)){
         Instr* i = list->i;
@@ -163,55 +164,75 @@ void print_MIPS(InstrList* list){
         switch(i->op){
         case LABEL:
             printf("%s:\n", a1->u.name);
+            fprintf(output, "%s:\n", a1->u.name);
             break;
 
         case ATRIB:
-            if(a2->kind == INT) printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
-            else printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name);
+            if(a2->kind == INT) {
+              printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
+              fprintf(output, "\tli $%s, %d\n", a1->u.name, a2->u.value);
+            }
+            else {
+              printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name);
+              fprintf(output, "\tmove $%s, $%s\n", a1->u.name, a2->u.name);
+            }
             break;
 
         case GOTO:
             printf("\tj %s\n", a1->u.name);
+            fprintf(output, "\tj %s\n", a1->u.name);
             break;
 
         case IFE:
             printf("\tbeq $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tbeq $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFNE:
             printf("\tbne $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tbne $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFG:
             printf("\tbgt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tbgt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFGE:
             printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFL:
             printf("\tblt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tblt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFLE:
             printf("\tble $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tble $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
 
         case PLUS:
             printf("\tadd $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tadd $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MINUS:
             printf("\tsub $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tsub $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MULTI:
             printf("\tmul $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tmul $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case DIVI:
             printf("\tdiv $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\tdiv $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MODUL:
             printf("\trem $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
+            fprintf(output, "\trem $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
 
         case PRINTS:
             /* need .data segment */
             printf("\tPRINTS FIX\n");
+            fprintf(output, "\tnop\n");
             break;
 
         case PRINT:
@@ -221,6 +242,9 @@ void print_MIPS(InstrList* list){
             printf("\tli $v0, 1\n");
             printf("\tadd $a0, $%s, $zero\n", a1->u.name);
             printf("\tsyscall\n");
+            fprintf(output, "\tli $v0, 1\n");
+            fprintf(output, "\tadd $a0, $%s, $zero\n", a1->u.name);
+            fprintf(output, "\tsyscall\n");
             break;
 
         case READ:
@@ -228,14 +252,20 @@ void print_MIPS(InstrList* list){
             printf("\tli $v0, 5\n");
             printf("\tsyscall\n");
             printf("\tadd $%s, $v0, $zero\n", a1->u.name);
+            fprintf(output, "\tli $v0, 5\n");
+            fprintf(output, "\tsyscall\n");
+            fprintf(output, "\tadd $%s, $v0, $zero\n", a1->u.name);
             break;
         case EXIT:
             printf("\tli $v0, 10\n");
             printf("\tsyscall\n");
+            fprintf(output, "\tli $v0, 10\n");
+            fprintf(output, "\tsyscall\n");
             break;
         default:
             // Unknown case? NOP! AAHAH XD
             printf("\tnop\n");
+            fprintf(output, "\tnop\n");
             break;
         }
 

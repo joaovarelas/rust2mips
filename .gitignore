@@ -13,3 +13,5 @@ parser.output
 parser.c
 parser.h
 scanner.c
+# Mips Assembly Output
+*.asm

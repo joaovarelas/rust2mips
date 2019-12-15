@@ -3,6 +3,7 @@
 #define __code_h__
 
 #include <stdbool.h>
+#include <stdio.h>
 
 extern void yyerror(const char* msg);
 
@@ -54,7 +55,7 @@ Atom* mk_atom_empty();
 Atom* mk_atom_int(int v);
 Atom* mk_atom_str(char* v);
 void print_3AC(InstrList* list);
-void print_MIPS(InstrList* list);
+void print_MIPS(InstrList* list, FILE* output);
 
 
 

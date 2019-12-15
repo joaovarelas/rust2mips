@@ -297,6 +297,8 @@ int main(int argc, char** argv) {
         fclose(file);
     }
 
+    FILE* output = fopen("mips.asm", "w");
+
     //  yyin = stdin
     if (yyparse() == 0) {
         printf("====================\n");
@@ -316,8 +318,8 @@ int main(int argc, char** argv) {
     printf("====================\n");
     printf("MIPS ASSEMBLY\n");
     printf("====================\n");
-    print_MIPS(list);
+    print_MIPS(list, output);
 
-
+    fclose(output);
     return 0;
 }
