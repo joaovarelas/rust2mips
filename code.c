@@ -169,12 +169,12 @@ void print_MIPS(InstrList* list, FILE* output){
 
         case ATRIB:
             if(a2->kind == INT) {
-              printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
-              fprintf(output, "\tli $%s, %d\n", a1->u.name, a2->u.value);
+                printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
+                fprintf(output, "\tli $%s, %d\n", a1->u.name, a2->u.value);
             }
             else {
-              printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name);
-              fprintf(output, "\tmove $%s, $%s\n", a1->u.name, a2->u.name);
+                printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name);
+                fprintf(output, "\tmove $%s, $%s\n", a1->u.name, a2->u.name);
             }
             break;
 
@@ -230,15 +230,14 @@ void print_MIPS(InstrList* list, FILE* output){
             break;
 
         case PRINTS:
-            /* need .data segment */
-            printf("\tPRINTS FIX\n");
+            // Print Str
+            /* need .data segment and store as .asciiz */
+            printf("\tPRINTS NEED .data\n");
             fprintf(output, "\tnop\n");
             break;
 
         case PRINT:
-            // Print Integer Syscall
-            // TODO: This should print strings? We don't have them
-            // TODO: Check atom kind and handle non-variables
+            // Print INT
             printf("\tli $v0, 1\n");
             printf("\tadd $a0, $%s, $zero\n", a1->u.name);
             printf("\tsyscall\n");

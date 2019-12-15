@@ -13,7 +13,6 @@ void compileExpr(AST* expr, char* t);
 void compileBool(AST* expr, char* label_true, char* label_false);
 
 
-
 void compileExpr(AST* expr, char* t){
 
     switch(type_map[expr->type]){
@@ -137,18 +136,19 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
     case TRM:
         {
             if (expr->type == NUM && ((IntVal*)expr)->num != 0) {
-              add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             } else if (expr->type == SYM) {
-              Symbol* s = ((SymbolRef*)expr)->sym;
-              char* t = tx();
-              add_instr(mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
-              add_instr(mk_instr(IFNE, mk_atom_str( get_register(s->name)), mk_atom_str(t), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
-              add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                Symbol* s = ((SymbolRef*)expr)->sym;
+                char* t = tx();
+                char* r = get_register(s->name);
+                add_instr(mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(0), mk_atom_empty(), mk_atom_empty()), list);
+                add_instr(mk_instr(IFNE, mk_atom_str(r), mk_atom_str(t), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             } else {
-              add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             }
 
-          }
+        }
         break;
 
 
@@ -198,6 +198,7 @@ void compileCmd(AST* cmd){
         compileCmd(cmd->right);
         break;
 
+        // Let Statement
     case ASG:
         {
             char* r = tx();
@@ -213,6 +214,7 @@ void compileCmd(AST* cmd){
         }
         break;
 
+        // If Statement
     case IFS:
         {
             ControlFlow* ifcmd = (ControlFlow*)cmd;
@@ -237,6 +239,8 @@ void compileCmd(AST* cmd){
 
         }
         break;
+
+        // While Statement
     case WHS:
         {
             char* l1 = lx();
@@ -251,15 +255,16 @@ void compileCmd(AST* cmd){
         }
         break;
 
+        // PrintLine IO
     case PTL:
         {
-            /* TODO: decide to print string, number or symbol */
+            /* TODO: must decide to print string, number or var */
             Symbol* s = ((IOFunc*)cmd)->symbol;
             char* r = get_register(s->name);
             add_instr(mk_instr(PRINT, mk_atom_str(r), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-
+        // ReadLine IO
     case RDL:
         {
             Symbol* s = ((IOFunc*)cmd)->symbol;
