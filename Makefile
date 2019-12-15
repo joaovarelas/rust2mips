@@ -1,4 +1,4 @@
-OBJS=scanner.o parser.o ast.o interpreter.o table.o code.o compiler.o
+OBJS=scanner.o parser.o ast.o code.o registers.o table.o interpreter.o compiler.o
 INTERM=scanner.c parser.c parser.h
 PROGRAM=./compiler
 CFLAGS=-g -Wall -Wno-unused-function -Wno-unused-variable

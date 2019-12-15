@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h> // for malloc
 #include <string.h>
+#include <limits.h>
 #include "ast.h"
 
 // hashtable max entries (prime number to reduce possible collisions)

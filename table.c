@@ -59,3 +59,4 @@ void set_symbol_value(char* var, int value){
 int get_symbol_value(char* var){
     return (search_table(var))->val;
 }
+

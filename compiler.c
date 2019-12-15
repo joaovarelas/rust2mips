@@ -14,6 +14,8 @@ InstrList* list;
 void compileExpr(AST* expr, char* t);
 void compileBool(AST* expr, char* label_true, char* label_false);
 
+
+
 void compileExpr(AST* expr, char* t){
     //char* t = NULL;
 
@@ -35,7 +37,9 @@ void compileExpr(AST* expr, char* t){
                 {
                     Symbol* s = ((SymbolRef*)expr)->sym;
                     set_symbol_value(t, s->val);
-                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(s->name), mk_atom_empty(), mk_atom_empty()), list);
+                    int sx = get_symbol_value(s->name);
+                    char r[3]; sprintf(r, "s%d", sx);
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(strdup(r)), mk_atom_empty(), mk_atom_empty()), list);
                 }
                 break;
             }
@@ -194,15 +198,17 @@ void compileCmd(AST* cmd){
     case ASG:
         {
             char* var = ((AssignVal*)cmd)->sym->name;
-
+            
             
             // Symbol* s = search_table(var); // verificar
             char* r = tx();
             AST* expr = ((AssignVal*)cmd)->val;
             compileExpr( expr, r );
             set_symbol_value(var, get_symbol_value(r));
-      
-            add_instr( mk_instr(ATRIB, mk_atom_str(var), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
+
+            set_symbol_value(var, s_count);
+            char* s = sx();
+            add_instr( mk_instr(ATRIB, mk_atom_str(s), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
@@ -248,12 +254,18 @@ void compileCmd(AST* cmd){
     case PTL:
         {
             /* TODO: print string, number or symbol */
-            add_instr(mk_instr(PRINT, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            Symbol* s = ((IOFunc*)cmd)->symbol;
+            int sx = get_symbol_value(s->name);
+            char r[3]; sprintf(r, "s%d", sx);
+            add_instr(mk_instr(PRINT, mk_atom_str(strdup(r)), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
         
     case RDL:
-        add_instr(mk_instr(READ, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+        {
+            Symbol* s = ((IOFunc*)cmd)->symbol;
+            add_instr(mk_instr(READ, mk_atom_str(s->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+        }
         break;
 
     default:
@@ -270,7 +282,7 @@ void compileCmd(AST* cmd){
 
 int main(int argc, char** argv) {
     --argc; ++argv;
-        
+
     // Initialize instruction list with "main" label
     list = mk_instr_list( mk_instr(LABEL, mk_atom_str("_main"), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), NULL);
 
