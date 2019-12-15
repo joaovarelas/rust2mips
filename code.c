@@ -66,12 +66,12 @@ void print_3AC(InstrList* list){
 
     while(!list_is_empty(list)){
         Instr* i = list->i;
-        
+
         Atom* a1 = i->a1;
         Atom* a2 = i->a2;
         Atom* a3 = i->a3;
         Atom* a4 = i->a4;
-        
+
         switch(i->op){
         case LABEL:
             printf("%s:\n", a1->u.name);
@@ -127,16 +127,15 @@ void print_3AC(InstrList* list){
             printf("\t%s := %s %% %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
 
-        case PRINT:
-            printf("\tPRINT NEEDFIX\n");
-            break;
         case PRINTS:
-            printf("\tPRINT NEEDFIX\n");
+            printf("\tPRINTS %s\n", a1->u.name);
+            break;
+        case PRINT:
+            printf("\tPRINT %s\n", a1->u.name);
             break;
         case READ:
-            printf("\tREAD NEEDFIX\n");
+            printf("\tREAD %s\n", a1->u.name);
             break;
-            
         case EXIT:
             printf("\tEXIT\n");
             break;
@@ -165,15 +164,15 @@ void print_MIPS(InstrList* list){
         Atom* a2 = i->a2;
         Atom* a3 = i->a3;
         Atom* a4 = i->a4;
-    
+
         switch(i->op){
         case LABEL:
             printf("%s:\n", a1->u.name);
             break;
-            
+
         case ATRIB:
             {
-                
+
                 if(a2->kind == INT){
                     printf("\tli $%s, %d\n", tx(), a2->u.value);
                 }else{
@@ -181,23 +180,23 @@ void print_MIPS(InstrList* list){
                 }
                 break;
             }
-            
+
         case GOTO:
             printf("\tj %s\n", a1->u.name);
             break;
-            
+
         case IFE:
             printf("\tbeq $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-            
+
         case IFNE:
             printf("\tbne $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-            
+
         case IFG:
             printf("\tbgt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-                
+
         case IFGE:
             printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
@@ -225,7 +224,7 @@ void print_MIPS(InstrList* list){
         case PRINTS:
             printf("\tPRINTS FIX\n");
             break;
-            
+
         case PRINT:
             // Print Integer Syscall
             // TODO: This should print strings? We don't have them
@@ -234,7 +233,7 @@ void print_MIPS(InstrList* list){
             printf("\tadd $a0, $%s, $zero\n", a1->u.name);
             printf("\tsyscall\n");
             break;
-                
+
         case READ:
             // Read Integer Syscall
             printf("\tli $v0, 5\n");
@@ -250,7 +249,7 @@ void print_MIPS(InstrList* list){
             printf("\tnop\n");
             break;
         }
-        
+
         list = list->next;
     }
 }
