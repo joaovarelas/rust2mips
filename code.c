@@ -1,5 +1,6 @@
 #include "code.h"
 #include "ast.h"
+#include <limits.h>
 
 int ndigits(int x){
     return (x == 0) ? 1 : floor(log(x))+1 ;
@@ -33,6 +34,8 @@ char* lx(){
     sprintf(l, "_L%d", l_count++);
     return l;
 }
+
+
 
 
 Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4){
@@ -91,6 +94,8 @@ Atom* mk_atom_str(char* v){
 
 
 void print_3AC(InstrList* list){
+
+    
 
     while(!list_is_empty(list)){
         Instr* i = list->i;
@@ -201,10 +206,11 @@ void print_MIPS(InstrList* list){
             
         case ATRIB:
             {
+                
                 if(a2->kind == INT){
                     printf("\tli $%s, %d\n", tx(), a2->u.value);
                 }else{
-                    printf("\tmove $%s, $%s\n", sx(), a2->u.name);
+                    printf("\tmove $%s, $%s\n", sx(), a2->u.name );
                 }
                 break;
             }

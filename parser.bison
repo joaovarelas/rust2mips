@@ -5,10 +5,8 @@
     #include <stdlib.h>
     #include <string.h>
     #include "ast.h"
-    #include "code.h"
-    #include "interpreter.h"
+    #include "table.h"
     
-
     extern int yylex();
     extern int yyline;
     extern char* yytext;

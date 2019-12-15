@@ -5,13 +5,14 @@
 #include "code.h"
 #include "interpreter.h"
 
-// Prototypes
-void compileExpr(AST* expr, char* t);
-void compileBool(AST* expr, char* label_true, char* label_false);
 
+// Global Instr List
 InstrList* list;
 
 
+// Prototypes
+void compileExpr(AST* expr, char* t);
+void compileBool(AST* expr, char* label_true, char* label_false);
 
 void compileExpr(AST* expr, char* t){
     //char* t = NULL;
@@ -32,9 +33,9 @@ void compileExpr(AST* expr, char* t){
                 break;
             case SYM:
                 {
-                    char* val = ((SymbolRef*)expr)->sym->name;
-                    set_symbol_value(t, ((SymbolRef*)expr)->sym->val);
-                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(val), mk_atom_empty(), mk_atom_empty()), list);
+                    Symbol* s = ((SymbolRef*)expr)->sym;
+                    set_symbol_value(t, s->val);
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(s->name), mk_atom_empty(), mk_atom_empty()), list);
                 }
                 break;
             }
@@ -193,11 +194,14 @@ void compileCmd(AST* cmd){
     case ASG:
         {
             char* var = ((AssignVal*)cmd)->sym->name;
+
+            
             // Symbol* s = search_table(var); // verificar
             char* r = tx();
             AST* expr = ((AssignVal*)cmd)->val;
             compileExpr( expr, r );
             set_symbol_value(var, get_symbol_value(r));
+      
             add_instr( mk_instr(ATRIB, mk_atom_str(var), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
@@ -266,8 +270,7 @@ void compileCmd(AST* cmd){
 
 int main(int argc, char** argv) {
     --argc; ++argv;
-
-
+        
     // Initialize instruction list with "main" label
     list = mk_instr_list( mk_instr(LABEL, mk_atom_str("_main"), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), NULL);
 
