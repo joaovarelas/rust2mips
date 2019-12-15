@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
 #include "parser.h"
 #include "code.h"
+#include "registers.h"
 #include "interpreter.h"
 
 
@@ -17,10 +15,8 @@ void compileBool(AST* expr, char* label_true, char* label_false);
 
 
 void compileExpr(AST* expr, char* t){
-    //char* t = NULL;
 
     switch(type_map[expr->type]){
-
     case TRM:
         {
             //t = tx();
@@ -29,17 +25,16 @@ void compileExpr(AST* expr, char* t){
             case NUM:
                 {
                     int val = ((IntVal*)expr)->num;
-                    set_symbol_value(t, val);
+                    set_symbol(t, val);
                     add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_int(val), mk_atom_empty(), mk_atom_empty()), list);
                 }
                 break;
             case SYM:
                 {
                     Symbol* s = ((SymbolRef*)expr)->sym;
-                    set_symbol_value(t, s->val);
-                    int sx = get_symbol_value(s->name);
-                    char r[3]; sprintf(r, "s%d", sx);
-                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(strdup(r)), mk_atom_empty(), mk_atom_empty()), list);
+                    set_symbol(t, s->val);
+                    char* r = get_register(s->name);
+                    add_instr( mk_instr(ATRIB, mk_atom_str(t), mk_atom_str(r), mk_atom_empty(), mk_atom_empty()), list);
                 }
                 break;
             }
@@ -59,46 +54,52 @@ void compileExpr(AST* expr, char* t){
             switch(expr->type){
             case ADD:
                 {
-                    val = get_symbol_value(t1) + get_symbol_value(t2);
+                    val = get_symbol(t1) + get_symbol(t2);
                     type = PLUS;
                 }
                 break;
             case SUB:
                 {
-                    val = get_symbol_value(t1) - get_symbol_value(t2);
+                    val = get_symbol(t1) - get_symbol(t2);
                     type = MINUS;
                 }
                 break;
             case MULT:
                 {
-                    val = get_symbol_value(t1) * get_symbol_value(t2);
+                    val = get_symbol(t1) * get_symbol(t2);
                     type = MULTI;
                 }
                 break;
             case DIV:
                 {
-                    val = get_symbol_value(t1) / get_symbol_value(t2);
+                    val = get_symbol(t1) / get_symbol(t2);
                     type = DIVI;
                 }
                 break;
             case MOD:
                 {
-                    val = get_symbol_value(t1) % get_symbol_value(t2);
+                    val = get_symbol(t1) % get_symbol(t2);
                     type = MODUL;
                 }
                 break;
             }
-            set_symbol_value(t, val);
+            set_symbol(t, val);
             add_instr( mk_instr(type, mk_atom_str(t), mk_atom_str(t1), mk_atom_str(t2), mk_atom_empty()), list);
         }
         break;
 
-
+    case REL:
+    case LOG:
+        {
+            printf("need debug\n");
+        }
+        break;
+        
     default:
-        printf("unknown case: compileExpr(), type_map[expr->type]\n");
+        printf("unknown case: compileExpr(), type_map[expr->type] (%d)\n", expr->type);
         break;
     }
-
+    
     return; //t;
 
 }
@@ -109,11 +110,11 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
     switch(type_map[expr->type]){
     case REL:
         {
-
+            
             char* t1 = tx();
-            compileExpr(expr->left, t1);
             char* t2 = tx();
-            compileExpr(expr->right, t2);
+            compileExpr(expr->left, t1); /* verificar se o lado esq e expr ou bool */
+            compileExpr(expr->right, t2); /* same */
 
             switch(expr->type){
             case EQT:
@@ -138,16 +139,16 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
 
         }
 
-        /* falta verificar p variaveis (TRM->SYM) true false */
-    case NUM:
+    case TRM:
         {
-            int val = ((IntVal*)expr)->num;
+            int val = (expr->type == NUM) ? ((IntVal*)expr)->num : ((SymbolRef*)expr)->sym->val;
             if( val == 1 )
                 add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             else if( val == 0 )
                 add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
+
 
     case LOG:
         {
@@ -161,6 +162,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
                 compileBool(expr->left, lab_t, arg2);
                 break;
             }
+            
             add_instr( mk_instr(LABEL, mk_atom_str(arg2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             compileBool(expr->right, lab_t, lab_f);
         }
@@ -175,7 +177,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
         break;
 
     default:
-        printf("unknown case: compileBool()\n");
+        printf("unknown case: compileBool() (%d)\n", expr->type);
         break;
     }
 
@@ -187,34 +189,25 @@ void compileCmd(AST* cmd){
     if (cmd == NULL)
         return;
 
-
     switch (cmd->type) {
     case CMD:
         compileCmd(cmd->left);
         compileCmd(cmd->right);
         break;
 
-
     case ASG:
         {
-            char* var = ((AssignVal*)cmd)->sym->name;
-            
-            
-            // Symbol* s = search_table(var); // verificar
             char* r = tx();
-            AST* expr = ((AssignVal*)cmd)->val;
-            compileExpr( expr, r );
-            set_symbol_value(var, get_symbol_value(r));
-
-            set_symbol_value(var, s_count);
-            char* s = sx();
-            add_instr( mk_instr(ATRIB, mk_atom_str(s), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
+            AssignVal* expr = (AssignVal*)cmd;
+            compileExpr( expr->val, r );
+            
+            set_register(expr->sym->name, s_count);
+            add_instr( mk_instr(ATRIB, mk_atom_str( sx() ), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
     case IFS:
         {
-
             ControlFlow* ifcmd = (ControlFlow*)cmd;
             char* l1 = lx();
             char* l2 = lx();
@@ -253,18 +246,18 @@ void compileCmd(AST* cmd){
 
     case PTL:
         {
-            /* TODO: print string, number or symbol */
+            /* TODO: decide to print string, number or symbol */
             Symbol* s = ((IOFunc*)cmd)->symbol;
-            int sx = get_symbol_value(s->name);
-            char r[3]; sprintf(r, "s%d", sx);
-            add_instr(mk_instr(PRINT, mk_atom_str(strdup(r)), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            char* r = get_register(s->name);
+            add_instr(mk_instr(PRINT, mk_atom_str(r), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
         
     case RDL:
         {
             Symbol* s = ((IOFunc*)cmd)->symbol;
-            add_instr(mk_instr(READ, mk_atom_str(s->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
+            char* r = get_register(s->name);
+            add_instr(mk_instr(READ, mk_atom_str(r), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
@@ -273,7 +266,8 @@ void compileCmd(AST* cmd){
         break;
     }
 
-    // Reset counter and make available for reusing
+    // Reset tmp reg counter
+    // make them available to reuse
     t_count = 0;
 
     return;
@@ -287,6 +281,8 @@ int main(int argc, char** argv) {
     list = mk_instr_list( mk_instr(LABEL, mk_atom_str("_main"), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), NULL);
 
     printf("\n====================\n");
+    printf("SOURCE CODE\n");
+    printf("====================\n");
     if (argc != 0) {
         yyin = fopen(*argv, "r");
         if (!yyin) {
@@ -301,12 +297,13 @@ int main(int argc, char** argv) {
     if (file) {
         while ( ( c = getc(file)) != EOF)
             putchar(c);
-        fclose(file);
-      
+        fclose(file);      
     }
 
     //  yyin = stdin
     if (yyparse() == 0) {
+        printf("====================\n");
+        printf("ABSTRACT SYNTAX TREE\n");
         printf("====================\n");
         printAST(root);
         compileCmd(root);
@@ -314,9 +311,13 @@ int main(int argc, char** argv) {
     
     // End the list with exit syscall instr
     add_instr( mk_instr(EXIT, mk_atom_empty(), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-    
+
+    printf("====================\n");
+    printf("THREE-ADDRESS CODE (IR)\n");
     printf("====================\n");
     print_3AC(list);
+    printf("====================\n");
+    printf("MIPS ASSEMBLY\n");
     printf("====================\n");
     print_MIPS(list);
 

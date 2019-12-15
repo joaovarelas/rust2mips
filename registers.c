@@ -5,7 +5,6 @@ int ndigits(int x){
 }
 
 int s_count = 0;
-// s0-s7
 char* sx(){
     if(s_count > 7)
         printf("Error: s_count exceeded\n");
@@ -16,7 +15,6 @@ char* sx(){
 
 
 int t_count = 0;
-// t0-t9
 char* tx(){
     if(t_count > 9)
         printf("Error: t_count exceeded\n");
@@ -25,8 +23,8 @@ char* tx(){
     return t;
 }
 
+
 int l_count = 0;
-// _L0 - _L999
 char* lx(){
     char* l = (char*)malloc(sizeof( ndigits(l_count) * sizeof(char) ));
     sprintf(l, "_L%d", l_count++);

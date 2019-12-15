@@ -53,7 +53,7 @@ int yyline = 1;
 
 
 [0-9]+ { yylval.number = atoi(yytext); return number; }
-[a-zA-Z][a-zA-Z0-9]* {  yylval.symbol = search_table(yytext); return symbol; }
+[a-zA-Z][a-zA-Z0-9]* {  yylval.symbol = search_table(sym_table, yytext); return symbol; }
 \".*\" { yylval.string = strdup(yytext); return string; }
 
 

@@ -21,9 +21,9 @@ unsigned int mk_hash(char* var){
 
 
 // As of flex&bison by John Levine
-Symbol* search_table(char* var){
+Symbol* search_table(Symbol* table, char* var){
     int scount = MAX_ENTRIES;
-    Symbol* sp = &hash_table[ mk_hash(var) ];
+    Symbol* sp = &table[ mk_hash(var) ];
         
     while(--scount >= 0) {
 	if(sp->name && !strcmp(sp->name, var)) { return sp; }
@@ -34,8 +34,8 @@ Symbol* search_table(char* var){
 	    return sp;
 	}
 	
-	if(++sp >= hash_table + MAX_ENTRIES)
-	    sp = hash_table; /* try the next entry */
+	if(++sp >= table + MAX_ENTRIES)
+	    sp = table; /* try the next entry */
     }
     yyerror("symbol table overflow\n");
     abort(); /* tried them all, table is full */
@@ -43,20 +43,29 @@ Symbol* search_table(char* var){
 }
 
 
+
 // Aux
-void set_symbol_value(char* var, int value){
-    /*
-    unsigned int hash = mk_hash(var);
-    Symbol* s = &hash_table[ hash ];
-    s->name = strdup(var);
-    s->val = value;
-    */
-    Symbol* s = search_table(var);
+int get_symbol(char* var){
+    return (search_table(sym_table, var))->val;
+}
+
+void set_symbol(char* var, int value){
+    Symbol* s = search_table(sym_table, var);
     s->val = value;
     return;
 }
 
-int get_symbol_value(char* var){
-    return (search_table(var))->val;
+
+
+char* get_register(char* var){
+    char r[3] = {0,0,0};
+    Symbol* s = search_table(reg_table, var);
+    sprintf(r, "s%d", s->val);
+    return strdup(r);
 }
 
+void set_register(char* var, int sx){
+    Symbol* s = search_table(reg_table, var);
+    s->val = sx;
+    return;
+}

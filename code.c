@@ -1,11 +1,6 @@
 #include "code.h"
 #include "ast.h"
-#include <limits.h>
-
-
-
-
-
+#include "registers.h"
 
 Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4){
     Instr* instr = (Instr*)malloc(sizeof(Instr));
@@ -171,16 +166,10 @@ void print_MIPS(InstrList* list){
             break;
 
         case ATRIB:
-            {
-
-                if(a2->kind == INT){
-                    printf("\tli $%s, %d\n", tx(), a2->u.value);
-                }else{
-                    printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name );
-                }
-                break;
-            }
-
+            if(a2->kind == INT) printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
+            else printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name );
+            break;
+            
         case GOTO:
             printf("\tj %s\n", a1->u.name);
             break;
@@ -188,15 +177,12 @@ void print_MIPS(InstrList* list){
         case IFE:
             printf("\tbeq $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-
         case IFNE:
             printf("\tbne $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-
         case IFG:
             printf("\tbgt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-
         case IFGE:
             printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
@@ -206,6 +192,7 @@ void print_MIPS(InstrList* list){
         case IFLE:
             printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
+            
         case PLUS:
             printf("\tadd $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
@@ -213,15 +200,17 @@ void print_MIPS(InstrList* list){
             printf("\tsub $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MULTI:
-            printf("\tmult $%s, $%s, $s%s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tmul $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case DIVI:
-            printf("\tdiv $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tdiv $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MODUL:
-            printf("\trem $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\trem $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
+            
         case PRINTS:
+            /* need .data segment */
             printf("\tPRINTS FIX\n");
             break;
 
@@ -238,7 +227,7 @@ void print_MIPS(InstrList* list){
             // Read Integer Syscall
             printf("\tli $v0, 5\n");
             printf("\tsyscall\n");
-            printf("\tadd %s, $v0, $zero\n", a1->u.name);
+            printf("\tadd $%s, $v0, $zero\n", a1->u.name);
             break;
         case EXIT:
             printf("\tli $v0, 10\n");
@@ -249,7 +238,7 @@ void print_MIPS(InstrList* list){
             printf("\tnop\n");
             break;
         }
-
+        
         list = list->next;
     }
 }

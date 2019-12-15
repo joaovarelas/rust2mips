@@ -2,12 +2,7 @@
 #ifndef __code_h__
 #define __code_h__
 
-#include <stdio.h>
-#include <stdlib.h> // for malloc
-#include <string.h>
 #include <stdbool.h>
-#include <math.h>
-
 
 extern void yyerror(const char* msg);
 
@@ -61,14 +56,6 @@ Atom* mk_atom_str(char* v);
 void print_3AC(InstrList* list);
 void print_MIPS(InstrList* list);
 
-int s_count;
-int t_count;
-int l_count;
-
-int ndigits(int x);
-char* sx();
-char* tx();
-char* lx();
 
 
 #endif

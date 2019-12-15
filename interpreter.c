@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdbool.h>
 #include "parser.h"
 #include "interpreter.h"
 
@@ -66,9 +64,10 @@ int eval(AST* ast, int depth, bool flag){
         result = 0;
         if(flag){ indent(depth);        printf("<println!>\n");}
         if ( ((IOFunc*)ast)->symbol ) {
-            result = ((SymbolRef*)ast)->sym->val;
+            //result = ((SymbolRef*)ast)->sym->val;
             name = ((SymbolRef*)ast)->sym->name;
-            if(flag){ indent(depth+1);    printf("<symbol %s = %d>\n", name, result);}
+            //if(flag){ indent(depth+1);    printf("<symbol %s = %d>\n", name, result);}
+            if(flag){ indent(depth+1);    printf("<symbol %s>\n", name);}
         }
         else if ( ((IOFunc*)ast)->number ) {
             result = ((IntVal*)ast)->num;
@@ -84,15 +83,17 @@ int eval(AST* ast, int depth, bool flag){
     case RDL:
         result = 0;
         if(flag){ indent(depth);        printf("<read_line>\n");}
-        int read_val;
+        // int read_val;
         name = ((SymbolRef*)ast)->sym->name;
-        if ( ((IOFunc*)ast)->symbol ) {
-            char buf[64];
-            fgets(buf, 64, stdin);
-            read_val = atoi(buf);
-            ((SymbolRef*)ast)->sym->val = read_val;
-        }
-        if(flag){  indent(depth+1);    printf("<symbol %s = %d>\n", name, read_val);}
+
+        /*if ( ((IOFunc*)ast)->symbol ) {
+          char buf[64];
+          fgets(buf, 64, stdin);
+          read_val = atoi(buf);
+          ((SymbolRef*)ast)->sym->val = read_val;
+          }*/
+        //if(flag){  indent(depth+1);    printf("<symbol %s = %d>\n", name, read_val);}
+        if(flag){  indent(depth+1);    printf("<symbol %s>\n", name);}
         break;
 
 
@@ -122,6 +123,7 @@ int eval(AST* ast, int depth, bool flag){
         }
 
         // Execute
+        /*
         if(eval(cond, depth+2, false) != 0 ){
             if(then_block){
                 eval(then_block , depth+2, false);
@@ -131,7 +133,7 @@ int eval(AST* ast, int depth, bool flag){
                 eval(else_block , depth+2, false);
             }
         }
-
+        */
         break;
 
 
@@ -153,11 +155,12 @@ int eval(AST* ast, int depth, bool flag){
         }
 
         // Execute
+        /*
         while ( eval(cond , depth+2, false) != 0 ){
             if( then_block ){
                 eval( then_block , depth+2, false);
             }
-        }
+            }*/
         break;
 
 

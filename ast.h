@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h> // for malloc
 #include <string.h>
+#include <limits.h>
 
 
 extern void yyerror(const char* msg);
@@ -16,7 +17,7 @@ enum _NodeType {
 		GRT, GEQ, LRT, LEQ, EQT, NEQ, // [5 - 10] RELATIONAL
                 AND, OR, NOT, // [11 - 13] LOGIC
 		CMD, ASG, IFS, WHS, PTL, RDL, // [14 - 19] CMDS
-		NUM, SYM // [15 - 16] TERMINAL SYMBOLS
+		NUM, SYM // [20 - 21] TERMINAL SYMBOLS
 } Type;
 
 
