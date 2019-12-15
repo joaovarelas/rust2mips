@@ -2,6 +2,13 @@
 #ifndef __code_h__
 #define __code_h__
 
+#include <stdio.h>
+#include <stdlib.h> // for malloc
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
+
+
 extern void yyerror(const char* msg);
 
 
@@ -35,16 +42,13 @@ struct {
 } Instr;
 
 
-typedef struct _InstrList {
+typedef
+struct _InstrList {
     Instr* i;
     struct _InstrList* next;
 } InstrList;
 
 
-typedef struct _RegStack {
-    int size;
-    // char** array;
-} RegStack;
 
 Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4);
 InstrList* mk_instr_list(Instr* i, InstrList* next);
@@ -56,5 +60,15 @@ Atom* mk_atom_int(int v);
 Atom* mk_atom_str(char* v);
 void print_3AC(InstrList* list);
 void print_MIPS(InstrList* list);
+
+int s_count;
+int t_count;
+int l_count;
+
+int ndigits(int x);
+char* sx();
+char* tx();
+char* lx();
+
 
 #endif

@@ -6,7 +6,9 @@
     #include <string.h>
     #include "ast.h"
     #include "code.h"
+    #include "interpreter.h"
     
+
     extern int yylex();
     extern int yyline;
     extern char* yytext;

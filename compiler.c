@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <math.h>
 #include "parser.h"
+#include "code.h"
+#include "interpreter.h"
 
 // Prototypes
 void compileExpr(AST* expr, char* t);
@@ -9,25 +11,6 @@ void compileBool(AST* expr, char* label_true, char* label_false);
 
 InstrList* list;
 
-int ndigits(int x){
-    return (x == 0) ? 1 : floor(log(x))+1 ;
-}
-
-// t0 - t999
-int t_count = 0;
-char* tx(){
-    char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) ));
-    sprintf(t, "$t%d", t_count++);
-    return t;
-}
-
-// _L0 - _L999
-int label_count = 0;
-char* lx(){
-    char* l = (char*)malloc( sizeof(ndigits(label_count) * sizeof(char) ));
-    sprintf(l, "_L%d", label_count++);
-    return l;
-}
 
 
 void compileExpr(AST* expr, char* t){
@@ -149,6 +132,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
             }
 
         }
+
         /* falta verificar p variaveis (TRM->SYM) true false */
     case NUM:
         {
@@ -201,10 +185,8 @@ void compileCmd(AST* cmd){
 
     switch (cmd->type) {
     case CMD:
-        {
-            compileCmd(cmd->left);
-            compileCmd(cmd->right);
-        }
+        compileCmd(cmd->left);
+        compileCmd(cmd->right);
         break;
 
 
@@ -261,14 +243,13 @@ void compileCmd(AST* cmd){
 
     case PTL:
         {
+            /* TODO: print string, number or symbol */
             add_instr(mk_instr(PRINT, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-
+        
     case RDL:
-        {
-            add_instr(mk_instr(READ, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
-        }
+        add_instr(mk_instr(READ, mk_atom_str(((AssignVal*)cmd)->sym->name), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         break;
 
     default:
@@ -306,16 +287,17 @@ int main(int argc, char** argv) {
         while ( ( c = getc(file)) != EOF)
             putchar(c);
         fclose(file);
+      
     }
-
-
 
     //  yyin = stdin
     if (yyparse() == 0) {
         printf("====================\n");
+        printAST(root);
         compileCmd(root);
     }
-
+    
+    // End the list with exit syscall instr
     add_instr( mk_instr(EXIT, mk_atom_empty(), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
     
     printf("====================\n");

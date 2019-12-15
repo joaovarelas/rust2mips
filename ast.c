@@ -1,10 +1,4 @@
-// AST constructor functions
-#include <stdio.h>
-#include <stdlib.h> // for malloc
-#include <string.h>
-#include "ast.h" // AST header
-
-
+#include "ast.h"
 
 AST* mk_ast(int type, AST* left, AST* right){
     AST* ast = (AST*)malloc(sizeof(AST));
@@ -57,7 +51,7 @@ AST* mk_flow(int type, AST* cond, AST* then_block, AST* else_block){
 
 
 
-
+// Jenkins Hash Function
 unsigned int mk_hash(char* var){
     unsigned int hash = 0, c=0;
    
@@ -72,11 +66,12 @@ unsigned int mk_hash(char* var){
     hash -= (hash << 15);
 
     hash %= MAX_ENTRIES;
-    //printf("Debug: hash(%s) = %u\n", var, hash);
+    // printf("Debug: hash(%s) = %u\n", var, hash);
     return hash;
 }
 
 
+// As of flex&bison by John Levine
 Symbol* search_table(char* var){
     int scount = MAX_ENTRIES;
     Symbol* sp = &hash_table[ mk_hash(var) ];
@@ -99,10 +94,15 @@ Symbol* search_table(char* var){
 }
 
 
+// Aux
 void set_symbol_value(char* var, int value){
+    /*
     unsigned int hash = mk_hash(var);
     Symbol* s = &hash_table[ hash ];
     s->name = strdup(var);
+    s->val = value;
+    */
+    Symbol* s = search_table(var);
     s->val = value;
     return;
 }

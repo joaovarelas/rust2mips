@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "parser.h"
+#include "interpreter.h"
+
+extern void printAST(AST* root);
 
 void indent(int depth){
   for(int n = 0; n++ < depth; printf("    "));
@@ -235,6 +238,12 @@ int eval(AST* ast, int depth, bool flag){
     return result;
   }
 
+
+void printAST(AST* root){
+    printf("<main>\n");
+    int _ = eval(root, 1, true);
+    return;
+}
 
 /*
   int main(int argc, char** argv) {

@@ -3,6 +3,9 @@
 #define __ast_h__
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h> // for malloc
+#include <string.h>
 
 
 extern void yyerror(const char* msg);

@@ -1,9 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h> // for malloc
-#include <string.h>
-#include <stdbool.h>
 #include "code.h"
 #include "ast.h"
+
+int ndigits(int x){
+    return (x == 0) ? 1 : floor(log(x))+1 ;
+}
+
+int s_count = 0;
+// s0-s7
+char* sx(){
+    if(s_count > 7)
+        printf("Error: s_count exceeded\n");
+    char* s = (char*)malloc(sizeof( ndigits(s_count) * sizeof(char) ));
+    sprintf(s, "s%d", s_count++);
+    return s;
+}
+
+
+int t_count = 0;
+// t0-t9
+char* tx(){
+    if(t_count > 9)
+        printf("Error: t_count exceeded\n");
+    char* t = (char*)malloc(sizeof( ndigits(t_count) * sizeof(char) ));
+    sprintf(t, "t%d", t_count++);
+    return t;
+}
+
+int l_count = 0;
+// _L0 - _L999
+char* lx(){
+    char* l = (char*)malloc(sizeof( ndigits(l_count) * sizeof(char) ));
+    sprintf(l, "_L%d", l_count++);
+    return l;
+}
+
 
 Instr* mk_instr(OpKind kind, Atom* a1, Atom* a2, Atom* a3, Atom* a4){
     Instr* instr = (Instr*)malloc(sizeof(Instr));
@@ -64,55 +94,77 @@ void print_3AC(InstrList* list){
 
     while(!list_is_empty(list)){
         Instr* i = list->i;
-
+        
+        Atom* a1 = i->a1;
+        Atom* a2 = i->a2;
+        Atom* a3 = i->a3;
+        Atom* a4 = i->a4;
+        
         switch(i->op){
         case LABEL:
-            printf("%s:\n", list->i->a1->u.name);
+            printf("%s:\n", a1->u.name);
             break;
         case ATRIB:
-            printf("\t%s := ", i->a1->u.name);
-            if (i->a2->kind == INT) printf("%d", i->a2->u.value);
-            else printf("%s", i->a2->u.name);
+            printf("\t%s := ", a1->u.name);
+            if (a2->kind == INT) printf("%d", a2->u.value);
+            else printf("%s", a2->u.name);
             printf("\n");
             break;
         case GOTO:
-            printf("\tGOTO %s\n", i->a1->u.name);
+            printf("\tGOTO %s\n", a1->u.name);
             break;
 
         case IFE:
-            printf("\tIF %s == %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s == %s GOTO %s ELSE %s\n", a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s == %s GOTO %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFNE:
-            printf("\tIF %s != %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s != %s GOTO %s ELSE %s\n", a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s != %s GOTO %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFG:
-            printf("\tIF %s > %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s > %s GOTO %s ELSE %s\n", a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s > %s GOTO %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFGE:
-            printf("\tIF %s >= %s GOTO %s ELSE %s\n",  i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s >= %s GOTO %s ELSE %s\n",  a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s >= %s GOTO %s\n",  a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFL:
-            printf("\tIF %s < %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s < %s GOTO %s ELSE %s\n", a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s < %s GOTO %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFLE:
-            printf("\tIF %s <= %s GOTO %s ELSE %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name, i->a4->u.name);
+            //printf("\tIF %s <= %s GOTO %s ELSE %s\n", a1->u.name, a2->u.name, a3->u.name, a4->u.name);
+            printf("\tIF %s <= %s GOTO %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
 
         case PLUS:
-            printf("\t%s := %s + %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\t%s := %s + %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MINUS:
-            printf("\t%s := %s - %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\t%s := %s - %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MULTI:
-            printf("\t%s := %s * %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\t%s := %s * %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case DIVI:
-            printf("\t%s := %s / %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\t%s := %s / %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MODUL:
-            printf("\t%s := %s %% %s\n", i->a1->u.name, i->a2->u.name, i->a3->u.name);
+            printf("\t%s := %s %% %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
+
+        case PRINT:
+            printf("\tPRINT NEEDFIX\n");
+            break;
+        case PRINTS:
+            printf("\tPRINT NEEDFIX\n");
+            break;
+        case READ:
+            printf("\tREAD NEEDFIX\n");
+            break;
+            
         case EXIT:
             printf("\tEXIT\n");
             break;
@@ -121,10 +173,12 @@ void print_3AC(InstrList* list){
             printf("unknown case: print_3AC()\n");
             break;
         }
-        
+
         list = list->next;
     }
 }
+
+
 
 
 
@@ -147,8 +201,11 @@ void print_MIPS(InstrList* list){
             
         case ATRIB:
             {
-                int val = ( a2->kind == INT ) ? a2->u.value : get_symbol_value(a2->u.name);
-                printf("\tli %s, %d\n", a1->u.name, val);
+                if(a2->kind == INT){
+                    printf("\tli $%s, %d\n", tx(), a2->u.value);
+                }else{
+                    printf("\tmove $%s, $%s\n", sx(), a2->u.name);
+                }
                 break;
             }
             
@@ -157,40 +214,40 @@ void print_MIPS(InstrList* list){
             break;
             
         case IFE:
-            printf("\tbeq %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tbeq $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
             
         case IFNE:
-            printf("\tbne %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tbne $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
             
         case IFG:
-            printf("\tbgt %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tbgt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
                 
         case IFGE:
-            printf("\tbge %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFL:
-            printf("\tblt %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tblt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFLE:
-            printf("\tbge %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case PLUS:
-            printf("\tadd %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tadd $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MINUS:
-            printf("\tsub %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tsub $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MULTI:
-            printf("\tmult %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tmult $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case DIVI:
-            printf("\tdiv %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tdiv $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case MODUL:
-            printf("\trem %s, %s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\trem $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case PRINTS:
             //print strings
@@ -220,7 +277,10 @@ void print_MIPS(InstrList* list){
             printf("\tnop\n");
             break;
         }
-    
+
+        // Reset tx
+        t_count = 0;
+        
         list = list->next;
     }
 }
