@@ -18,6 +18,6 @@ int get_symbol(char* var);
 
 void set_register(char* var, int sx);
 char* get_register(char* var);
-
+bool valid_register(char* var);
 
 #endif

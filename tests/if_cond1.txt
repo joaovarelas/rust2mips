@@ -1,0 +1,7 @@
+fn main(){
+let x = true;
+let y = true;
+if x && y {
+let z = 1337;
+}
+}

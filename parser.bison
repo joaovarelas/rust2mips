@@ -30,8 +30,8 @@
 %token			'(' ')' '{' '}' ';'
 			
 // Operator associativity & precedence
-%left			lrt grt eqt neq leq geq
 %left			and or not
+%left			lrt grt eqt neq leq geq
 %left			plus minus
 %left			mult divi mod
 

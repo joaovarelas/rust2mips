@@ -30,7 +30,7 @@ Symbol* search_table(Symbol* table, char* var){
 
 	if(!sp->name) {		/* new entry */
 	    sp->name = strdup(var);
-	    sp->val = 0;
+	    sp->val = -1;
 	    return sp;
 	}
 	
@@ -68,4 +68,8 @@ void set_register(char* var, int sx){
     Symbol* s = search_table(reg_table, var);
     s->val = sx;
     return;
+}
+
+bool valid_register(char* var){
+    return (search_table(reg_table, var)->val == -1) ? false : true;
 }

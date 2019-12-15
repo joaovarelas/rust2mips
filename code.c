@@ -190,7 +190,7 @@ void print_MIPS(InstrList* list){
             printf("\tblt $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
         case IFLE:
-            printf("\tbge $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
+            printf("\tble $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
             
         case PLUS:

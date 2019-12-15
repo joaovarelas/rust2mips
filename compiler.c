@@ -88,12 +88,6 @@ void compileExpr(AST* expr, char* t){
         }
         break;
 
-    case REL:
-    case LOG:
-        {
-            printf("need debug\n");
-        }
-        break;
         
     default:
         printf("unknown case: compileExpr(), type_map[expr->type] (%d)\n", expr->type);
@@ -113,8 +107,8 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
             
             char* t1 = tx();
             char* t2 = tx();
-            compileExpr(expr->left, t1); /* verificar se o lado esq e expr ou bool */
-            compileExpr(expr->right, t2); /* same */
+            compileExpr(expr->left, t1);
+            compileExpr(expr->right, t2); 
 
             switch(expr->type){
             case EQT:
@@ -139,15 +133,17 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
 
         }
 
+        
     case TRM:
         {
             int val = (expr->type == NUM) ? ((IntVal*)expr)->num : ((SymbolRef*)expr)->sym->val;
-            if( val == 1 )
-                add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-            else if( val == 0 )
+            if( val != 0 )
                 add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            else
+                add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
+        
 
 
     case LOG:
@@ -199,10 +195,14 @@ void compileCmd(AST* cmd){
         {
             char* r = tx();
             AssignVal* expr = (AssignVal*)cmd;
+            char* var = expr->sym->name;
             compileExpr( expr->val, r );
+
+            if(!valid_register(var))
+                set_register(var, s_count++);
             
-            set_register(expr->sym->name, s_count);
-            add_instr( mk_instr(ATRIB, mk_atom_str( sx() ), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
+            char* sx = get_register(var);
+            add_instr( mk_instr(ATRIB, mk_atom_str(sx), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
 
@@ -272,6 +272,7 @@ void compileCmd(AST* cmd){
 
     return;
 }
+
 
 
 int main(int argc, char** argv) {
