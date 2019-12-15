@@ -88,12 +88,12 @@ void compileExpr(AST* expr, char* t){
         }
         break;
 
-        
+
     default:
         printf("unknown case: compileExpr(), type_map[expr->type] (%d)\n", expr->type);
         break;
     }
-    
+
     return; //t;
 
 }
@@ -104,11 +104,11 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
     switch(type_map[expr->type]){
     case REL:
         {
-            
+
             char* t1 = tx();
             char* t2 = tx();
             compileExpr(expr->left, t1);
-            compileExpr(expr->right, t2); 
+            compileExpr(expr->right, t2);
 
             switch(expr->type){
             case EQT:
@@ -133,17 +133,13 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
 
         }
 
-        
+
     case TRM:
         {
-            int val = (expr->type == NUM) ? ((IntVal*)expr)->num : ((SymbolRef*)expr)->sym->val;
-            if( val != 0 )
-                add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
-            else
-                add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-        
+
 
 
     case LOG:
@@ -158,7 +154,7 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
                 compileBool(expr->left, lab_t, arg2);
                 break;
             }
-            
+
             add_instr( mk_instr(LABEL, mk_atom_str(arg2), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             compileBool(expr->right, lab_t, lab_f);
         }
@@ -200,7 +196,7 @@ void compileCmd(AST* cmd){
 
             if(!valid_register(var))
                 set_register(var, s_count++);
-            
+
             char* sx = get_register(var);
             add_instr( mk_instr(ATRIB, mk_atom_str(sx), mk_atom_str(r),  mk_atom_empty(), mk_atom_empty()), list);
         }
@@ -252,7 +248,7 @@ void compileCmd(AST* cmd){
             add_instr(mk_instr(PRINT, mk_atom_str(r), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
         }
         break;
-        
+
     case RDL:
         {
             Symbol* s = ((IOFunc*)cmd)->symbol;
@@ -298,7 +294,7 @@ int main(int argc, char** argv) {
     if (file) {
         while ( ( c = getc(file)) != EOF)
             putchar(c);
-        fclose(file);      
+        fclose(file);
     }
 
     //  yyin = stdin
@@ -309,7 +305,7 @@ int main(int argc, char** argv) {
         printAST(root);
         compileCmd(root);
     }
-    
+
     // End the list with exit syscall instr
     add_instr( mk_instr(EXIT, mk_atom_empty(), mk_atom_empty(), mk_atom_empty(), mk_atom_empty()), list);
 

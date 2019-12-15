@@ -167,9 +167,9 @@ void print_MIPS(InstrList* list){
 
         case ATRIB:
             if(a2->kind == INT) printf("\tli $%s, %d\n", a1->u.name, a2->u.value);
-            else printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name );
+            else printf("\tmove $%s, $%s\n", a1->u.name, a2->u.name);
             break;
-            
+
         case GOTO:
             printf("\tj %s\n", a1->u.name);
             break;
@@ -192,7 +192,7 @@ void print_MIPS(InstrList* list){
         case IFLE:
             printf("\tble $%s, $%s, %s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-            
+
         case PLUS:
             printf("\tadd $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
@@ -208,7 +208,7 @@ void print_MIPS(InstrList* list){
         case MODUL:
             printf("\trem $%s, $%s, $%s\n", a1->u.name, a2->u.name, a3->u.name);
             break;
-            
+
         case PRINTS:
             /* need .data segment */
             printf("\tPRINTS FIX\n");
@@ -238,7 +238,7 @@ void print_MIPS(InstrList* list){
             printf("\tnop\n");
             break;
         }
-        
+
         list = list->next;
     }
 }
