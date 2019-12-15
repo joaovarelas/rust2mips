@@ -138,6 +138,9 @@ void compileBool(AST* expr, char* lab_t, char* lab_f){
         {
             if (expr->type == NUM && ((IntVal*)expr)->num != 0) {
               add_instr(mk_instr(GOTO, mk_atom_str(lab_t), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
+            } else if (expr->type == SYM) {
+              // HERE:
+              add_instr( mk_instr(IFNE, mk_atom_str("SIMBOLO ATUAL"), mk_atom_str("NUMERO ZERO"), mk_atom_str(lab_t), mk_atom_str(lab_f)), list);
             } else {
               add_instr(mk_instr(GOTO, mk_atom_str(lab_f), mk_atom_empty(),  mk_atom_empty(), mk_atom_empty()), list);
             }
